@@ -1,0 +1,16 @@
+# Node modules only (too large for GitHub)
+bylw-vue/node_modules/
+bylw-spring/target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
