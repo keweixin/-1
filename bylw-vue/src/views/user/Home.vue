@@ -108,7 +108,7 @@
 
     <div class="max-w-7xl mx-auto px-4 mt-16">
       <!-- Quick Access Categories -->
-      <div class="reveal-section grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mb-12">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mb-12">
         <router-link
           v-for="cat in categories"
           :key="cat.id"
@@ -125,7 +125,7 @@
       </div>
 
       <!-- Daily Sign-in Card -->
-      <div v-if="authStore.isAuthenticated()" class="reveal-section bg-gradient-to-r from-green-600 to-emerald-600 rounded-[2rem] p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div v-if="authStore.isAuthenticated()" class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-[2rem] p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
             <CalendarCheckIcon class="w-6 h-6 text-white" />
