@@ -71,7 +71,11 @@
       </header>
 
       <main class="flex-1 p-8">
-        <router-view />
+        <router-view v-slot="{ Component, route }">
+          <Transition name="page" mode="out-in">
+            <component :is="Component" :key="route.path" />
+          </Transition>
+        </router-view>
       </main>
     </div>
   </div>

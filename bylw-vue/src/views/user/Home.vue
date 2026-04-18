@@ -108,7 +108,7 @@
 
     <div class="max-w-7xl mx-auto px-4 mt-16">
       <!-- Quick Access Categories -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mb-12">
+      <div class="reveal-section grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mb-12">
         <router-link
           v-for="cat in categories"
           :key="cat.id"
@@ -125,7 +125,7 @@
       </div>
 
       <!-- Daily Sign-in Card -->
-      <div v-if="authStore.isAuthenticated()" class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-[2rem] p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div v-if="authStore.isAuthenticated()" class="reveal-section bg-gradient-to-r from-green-600 to-emerald-600 rounded-[2rem] p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
             <CalendarCheckIcon class="w-6 h-6 text-white" />
@@ -151,7 +151,7 @@
       </div>
 
       <!-- Expiry Reminder Card -->
-      <div class="relative bg-gray-900 rounded-[3rem] p-10 md:p-14 mb-24 overflow-hidden group">
+      <div class="reveal-section relative bg-gray-900 rounded-[3rem] p-10 md:p-14 mb-24 overflow-hidden group">
         <div class="absolute top-0 right-0 w-96 h-96 bg-green-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
         <div class="absolute bottom-0 left-0 w-64 h-64 bg-orange-600/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
 
@@ -177,7 +177,7 @@
       </div>
 
       <!-- Recommended Food Section -->
-      <section class="mb-16">
+      <section class="reveal-section mb-16">
         <div class="flex items-end justify-between mb-8">
           <div>
             <h2 class="text-3xl font-black text-gray-900 mb-2">猜我喜欢</h2>
@@ -202,9 +202,11 @@
         </div>
         <div v-else-if="recommendedFoods.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <FoodCard
-            v-for="food in recommendedFoods"
+            v-for="(food, i) in recommendedFoods"
             :key="food.id"
             v-bind="food"
+            class="card-stagger"
+            :style="{ animationDelay: `${i * 80}ms` }"
           />
         </div>
         <div v-else class="flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
@@ -215,7 +217,7 @@
       </section>
 
       <!-- Recommended Recipes Section -->
-      <section class="mb-16">
+      <section class="reveal-section mb-16">
         <div class="flex items-end justify-between mb-8">
           <div>
             <h2 class="text-3xl font-black text-gray-900 mb-2">健康食谱</h2>
@@ -239,9 +241,11 @@
         </div>
         <div v-else-if="recipes.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <RecipeCard
-            v-for="recipe in recipes"
+            v-for="(recipe, i) in recipes"
             :key="recipe.id"
             v-bind="recipe"
+            class="card-stagger"
+            :style="{ animationDelay: `${i * 80}ms` }"
           />
         </div>
         <div v-else class="flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
@@ -252,7 +256,7 @@
       </section>
 
       <!-- Community Preview Section -->
-      <section>
+      <section class="reveal-section">
         <div class="flex items-end justify-between mb-8">
           <div>
             <h2 class="text-3xl font-black text-gray-900 mb-2">社区动态</h2>

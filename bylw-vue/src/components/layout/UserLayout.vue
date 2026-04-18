@@ -1,5 +1,6 @@
 <template>
   <div class="flex min-h-screen flex-col bg-gray-50">
+    <LoadingBar />
     <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <router-link to="/" class="flex items-center gap-3">
@@ -58,7 +59,11 @@
     </header>
 
     <main class="flex-1">
-      <router-view />
+      <router-view v-slot="{ Component, route }">
+        <Transition name="page" mode="out-in">
+          <component :is="Component" :key="route.path" />
+        </Transition>
+      </router-view>
     </main>
 
     <footer class="mt-auto border-t border-gray-200 bg-white py-12">
@@ -118,6 +123,10 @@ import { useAuthStore } from '@/stores/auth'
 import { getAvatarImage } from '@/utils/images'
 import { api } from '@/api'
 import NotificationPanel from '@/components/ui/NotificationPanel.vue'
+import LoadingBar from '@/components/ui/LoadingBar.vue'
+import { useScrollReveal } from '@/composables/useScrollReveal'
+
+useScrollReveal()
 import {
   BookOpen,
   ClipboardList,

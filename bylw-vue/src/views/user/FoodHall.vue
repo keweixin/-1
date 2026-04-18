@@ -179,9 +179,11 @@
 
           <div v-else-if="filteredItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <FoodCard
-              v-for="food in filteredItems"
+              v-for="(food, i) in filteredItems"
               :key="food.id"
               v-bind="food"
+              class="card-stagger"
+              :style="{ animationDelay: `${i * 60}ms` }"
             />
           </div>
 
