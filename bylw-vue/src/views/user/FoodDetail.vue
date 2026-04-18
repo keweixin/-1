@@ -10,7 +10,26 @@
         <span class="text-gray-900 font-medium">{{ food.name }}</span>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Loading state -->
+      <div v-if="loading" class="col-span-2 flex flex-col items-center justify-center py-32">
+        <div class="h-12 w-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-gray-400 font-bold text-sm">商品加载中...</p>
+      </div>
+
+      <!-- Error state -->
+      <div v-else-if="!foodData" class="col-span-2 flex flex-col items-center justify-center py-32">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <ShoppingBagIcon class="w-10 h-10 text-gray-300" />
+        </div>
+        <p class="text-lg font-bold text-gray-900 mb-1">商品不存在或已下架</p>
+        <p class="text-sm text-gray-400 mb-6">该商品可能已售罄或被商家下架</p>
+        <router-link to="/food-hall" class="bg-green-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-green-700 transition-all">
+          返回食品大厅
+        </router-link>
+      </div>
+
+      <!-- Food content -->
+      <template v-else>
         <!-- Left: Image Gallery -->
         <div class="space-y-4">
           <div class="aspect-square rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-2xl shadow-black/5 bg-white group/img">
@@ -131,7 +150,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
       <!-- Tabs / Details Section -->
       <div class="mt-20">
@@ -306,7 +325,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { foodApi } from '@/api/food'
-import { orderApi } from '@/api/order'
+import { orderApi, type OrderCreateDTO } from '@/api/order'
 import { recommendApi } from '@/api/recommend'
 import { authApi } from '@/api/auth'
 import type { FoodDTO } from '@/api/food'
@@ -319,6 +338,7 @@ const authStore = useAuthStore()
 import {
   ChevronRight as ChevronRightIcon,
   ShoppingCart as ShoppingCartIcon,
+  ShoppingBag as ShoppingBagIcon,
   Heart as HeartIcon,
 
   Store as StoreIcon,
@@ -403,7 +423,7 @@ async function loadRelatedFoods() {
   try {
     const result = await recommendApi.getFoods(4)
     const id = Number(route.params.id)
-    relatedFoods.value = (result.foods || []).map((r: any) => mapFoodToCard(r)).filter((f: FoodCardItem) => f.id !== id).slice(0, 4)
+    relatedFoods.value = (result.foods || []).map((r: FoodDTO) => mapFoodToCard(r)).filter((f: FoodCardItem) => f.id !== id).slice(0, 4)
   } catch {
     relatedFoods.value = []
   } finally {
@@ -435,7 +455,7 @@ async function openOrderConfirm() {
   }
   try {
     const { pointsApi: pApi } = await import('@/api/points')
-    const balanceResult = await pApi.getBalance().catch(() => ({ balance: 0 } as any))
+    const balanceResult = await pApi.getBalance().catch(() => ({ balance: 0 }))
     pointsBalance.value = balanceResult.balance ?? 0
   } catch {
     pointsBalance.value = 0
@@ -453,7 +473,7 @@ async function handleOrder() {
       recommendApi.recordBehavior({ userId: authStore.userId, targetType: 'food', targetId: id, behaviorType: 'purchase' }).catch(() => {})
     }
     const user = await authApi.getUserInfo()
-    const orderData: any = {
+    const orderData: OrderCreateDTO = {
       receiverName: user.nickname || user.username || '顾客',
       receiverPhone: user.phone || '',
       receiverAddress: user.address || '',
@@ -466,8 +486,8 @@ async function handleOrder() {
     showOrderConfirm.value = false
     toast.show('下单成功！即将跳转到支付页面...', 'success')
     router.push('/orders')
-  } catch (e: any) {
-    toast.show('下单失败：' + (e?.message || '请先登录'), 'error')
+  } catch (e: unknown) {
+    toast.show('下单失败：' + (e instanceof Error ? e.message : '请先登录'), 'error')
   } finally {
     orderLoading.value = false
   }

@@ -199,8 +199,8 @@ async function handleSignIn() {
     await pointsApi.signIn()
     showToast('签到成功！获得 10 绿色积分', 'success')
     await Promise.all([loadBalance(), loadHistory()])
-  } catch (e: any) {
-    showToast(e?.message || '签到失败，请重试', 'error')
+  } catch (e: unknown) {
+    showToast(e instanceof Error ? e.message : '签到失败，请重试', 'error')
   } finally {
     signInLoading.value = false
   }
@@ -220,8 +220,8 @@ async function handleExchange(item: PointsGoods) {
     await pointsApi.exchange(item.goodsId)
     showToast('兑换成功！', 'success')
     await Promise.all([loadBalance(), loadGoods(), loadHistory()])
-  } catch (e: any) {
-    showToast('兑换失败：' + (e?.message || '请先登录'), 'error')
+  } catch (e: unknown) {
+    showToast('兑换失败：' + (e instanceof Error ? e.message : '请先登录'), 'error')
   } finally {
     exchangeLoading.value = null
   }

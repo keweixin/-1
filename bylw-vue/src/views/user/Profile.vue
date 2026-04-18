@@ -462,8 +462,8 @@ async function handleSaveProfile() {
     user.value = updated
     editModal.value = false
     showToast('资料保存成功', 'success')
-  } catch (e: any) {
-    showToast('保存失败：' + (e?.message || '请先登录'), 'error')
+  } catch (e: unknown) {
+    showToast('保存失败：' + (e instanceof Error ? e.message : '请先登录'), 'error')
   } finally {
     saving.value = false
   }
@@ -476,8 +476,8 @@ async function handleSaveDiet() {
     dietaryProfile.value = updated
     dietModal.value = false
     showToast('饮食档案保存成功', 'success')
-  } catch (e: any) {
-    showToast('保存失败：' + (e?.message || '请先登录'), 'error')
+  } catch (e: unknown) {
+    showToast('保存失败：' + (e instanceof Error ? e.message : '请先登录'), 'error')
   } finally {
     dietSaving.value = false
   }

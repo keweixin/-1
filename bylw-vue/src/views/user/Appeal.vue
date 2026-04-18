@@ -259,8 +259,8 @@ async function submitAppeal() {
     showToast('申诉提交成功，请等待处理', 'success')
     showForm.value = false
     loadAppeals()
-  } catch (e: any) {
-    showToast('提交失败：' + (e?.message || '请重试'), 'error')
+  } catch (e: unknown) {
+    showToast('提交失败：' + (e instanceof Error ? e.message : '请重试'), 'error')
   } finally {
     submitting.value = false
   }

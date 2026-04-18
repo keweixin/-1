@@ -55,7 +55,7 @@
 
           <div class="flex items-center gap-4 border-l border-gray-200 pl-6">
             <div class="hidden text-right sm:block">
-              <p class="text-sm font-black text-gray-900">系统管理员</p>
+              <p class="text-sm font-black text-gray-900">{{ adminDisplayName }}</p>
               <p class="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-green-600">Super Admin</p>
             </div>
             <div class="h-11 w-11 overflow-hidden rounded-2xl border-2 border-white bg-gray-100 shadow-sm">
@@ -124,7 +124,14 @@ const currentPageName = computed(() => {
   return current?.name || '管理后台'
 })
 
-const adminAvatar = getAvatarImage('admin', 'AD')
+const adminAvatar = computed(() => {
+  const uid = authStore.userId
+  return uid ? getAvatarImage(uid, String(uid)) : getAvatarImage('admin', 'AD')
+})
+
+const adminDisplayName = computed(() => {
+  return authStore.role || '系统管理员'
+})
 
 function handleLogout() {
   authStore.clearAuth()

@@ -175,8 +175,8 @@ async function approveAppeal() {
     currentAppeal.value.adminRemark = reviewRemark.value
     detailVisible.value = false
     await loadAppeals()
-  } catch (e: any) {
-    showToast('处理失败：' + (e?.message || '请重试'), 'error')
+  } catch (e: unknown) {
+    showToast('处理失败：' + (e instanceof Error ? e.message : '请重试'), 'error')
   }
 }
 
@@ -188,8 +188,8 @@ async function rejectAppeal() {
     currentAppeal.value.adminRemark = reviewRemark.value
     detailVisible.value = false
     await loadAppeals()
-  } catch (e: any) {
-    showToast('处理失败：' + (e?.message || '请重试'), 'error')
+  } catch (e: unknown) {
+    showToast('处理失败：' + (e instanceof Error ? e.message : '请重试'), 'error')
   }
 }
 

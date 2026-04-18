@@ -124,7 +124,6 @@ import {
   Gift as GiftIcon,
   Headphones as HeadphonesIcon,
   Home,
-  ShoppingBag,
   ShoppingBag as ShoppingBagIcon,
   User,
   Users,
@@ -149,7 +148,7 @@ async function loadFriendLinks() {
 
 const navItems = [
   { name: '首页', path: '/', icon: Home },
-  { name: '临期食品', path: '/food-hall', icon: ShoppingBag },
+  { name: '临期食品', path: '/food-hall', icon: ShoppingBagIcon },
   { name: '膳食百科', path: '/encyclopedia', icon: BookOpen },
   { name: '健康食谱', path: '/recipes', icon: UtensilsIcon },
   { name: '社区', path: '/community', icon: Users },

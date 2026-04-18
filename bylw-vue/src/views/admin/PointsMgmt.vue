@@ -89,9 +89,9 @@ async function loadHistory() {
     ])
     history.value = historyData
     totalUsers.value = userCount ?? 0
-  } catch (e: any) {
+  } catch (e: unknown) {
     history.value = []
-    showToast('加载失败：' + (e?.message || '请检���网络连接'), 'error')
+    showToast('加载失败：' + (e instanceof Error ? e.message : '请检查网络连接'), 'error')
   } finally {
     loading.value = false
   }

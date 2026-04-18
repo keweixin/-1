@@ -362,8 +362,8 @@ async function submitAssign() {
     await adminApi.dispatchAssign(assignTarget.value.orderId, courierName, courierPhone)
     assignVisible.value = false
     await loadDispatches()
-  } catch (e: any) {
-    showToast('分配失败：' + (e?.message || '请重试'), 'error')
+  } catch (e: unknown) {
+    showToast('分配失败：' + (e instanceof Error ? e.message : '请重试'), 'error')
   }
 }
 
@@ -374,8 +374,8 @@ async function setStatus(item: DispatchDTO, status: string) {
   try {
     await adminApi.updateDispatchStatus(item.dispatchId, status)
     await loadDispatches()
-  } catch (e: any) {
-    showToast('状态更新失败：' + (e?.message || '请重试'), 'error')
+  } catch (e: unknown) {
+    showToast('状态更新失败：' + (e instanceof Error ? e.message : '请重试'), 'error')
   }
 }
 
@@ -405,8 +405,8 @@ async function submitCourierForm() {
     courierFormVisible.value = false
     await loadCouriers()
     await loadActiveCouriers()
-  } catch (e: any) {
-    showToast(e?.message || '保存失败', 'error')
+  } catch (e: unknown) {
+    showToast(e instanceof Error ? e.message : '保存失败', 'error')
   }
 }
 
@@ -415,8 +415,8 @@ async function removeCourier(c: CourierEntity) {
   try {
     await adminApi.deleteCourier(c.courierId)
     await loadCouriers()
-  } catch (e: any) {
-    showToast(e?.message || '操作失败', 'error')
+  } catch (e: unknown) {
+    showToast(e instanceof Error ? e.message : '操作失败', 'error')
   }
 }
 
@@ -424,8 +424,8 @@ async function reactivateCourier(c: CourierEntity) {
   try {
     await adminApi.updateCourier(c.courierId, { status: 1 })
     await loadCouriers()
-  } catch (e: any) {
-    showToast(e?.message || '操作失败', 'error')
+  } catch (e: unknown) {
+    showToast(e instanceof Error ? e.message : '操作失败', 'error')
   }
 }
 

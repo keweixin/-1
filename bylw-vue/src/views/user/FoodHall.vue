@@ -158,7 +158,26 @@
             </div>
           </div>
 
-          <div v-if="filteredItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <!-- Loading skeleton -->
+          <div v-if="loading && apiFoods.length === 0" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div v-for="i in 6" :key="i" class="bg-white rounded-3xl border border-gray-100 p-5 animate-pulse">
+              <div class="h-48 bg-gray-100 rounded-2xl mb-4"></div>
+              <div class="h-5 bg-gray-100 rounded-xl w-3/4 mb-3"></div>
+              <div class="h-4 bg-gray-100 rounded-xl w-1/2 mb-4"></div>
+              <div class="flex justify-between items-center">
+                <div class="h-6 bg-gray-100 rounded-xl w-20"></div>
+                <div class="h-10 bg-gray-100 rounded-2xl w-28"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reloading indicator (already has data, refreshing) -->
+          <div v-else-if="loading && apiFoods.length > 0" class="mb-4 flex items-center justify-center gap-3 py-3 text-sm text-green-600">
+            <div class="h-4 w-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+            刷新中...
+          </div>
+
+          <div v-else-if="filteredItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <FoodCard
               v-for="food in filteredItems"
               :key="food.id"
@@ -353,6 +372,10 @@ const filteredItems = computed(() => {
 })
 
 const applyFilters = () => {
+  if (priceRange.value[0] > priceRange.value[1] && priceRange.value[1] > 0) {
+    showToast('最低价格不能大于最高价格', 'warning')
+    return
+  }
   showFilters.value = false
   pageNum.value = 1
   loadFoods()

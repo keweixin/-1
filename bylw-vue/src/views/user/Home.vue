@@ -99,15 +99,12 @@
           公告
         </div>
         <div class="flex-grow overflow-hidden relative h-6">
-          <div v-if="notices.length > 0" class="absolute whitespace-nowrap text-sm font-bold text-gray-600 flex items-center gap-12 animate-marquee">
-            <span v-for="n in notices" :key="n.id">【{{ n.title }}】{{ n.content }}</span>
-          </div>
-          <div v-else class="absolute whitespace-nowrap text-sm font-bold text-gray-600 flex items-center gap-12 animate-marquee">
+          <div class="absolute whitespace-nowrap text-sm font-bold text-gray-600 flex items-center gap-12 animate-marquee">
             <span>欢迎访问城市临期食品分发系统，绿色消费从今天开始！</span>
           </div>
         </div>
       </div>
-      </div>
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 mt-16">
       <!-- Quick Access Categories -->
@@ -190,12 +187,30 @@
             查看全部 <ChevronRightIcon class="w-5 h-5" />
           </router-link>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Food skeleton loading -->
+        <div v-if="foodsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div v-for="i in 4" :key="i" class="bg-white rounded-3xl border border-gray-100 p-5 animate-pulse">
+            <div class="h-44 bg-gray-100 rounded-2xl mb-4"></div>
+            <div class="h-5 bg-gray-100 rounded-xl w-3/4 mb-3"></div>
+            <div class="h-4 bg-gray-100 rounded-xl w-1/2 mb-4"></div>
+            <div class="flex justify-between items-center">
+              <div class="h-6 bg-gray-100 rounded-xl w-20"></div>
+              <div class="h-10 bg-gray-100 rounded-2xl w-28"></div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="recommendedFoods.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <FoodCard
             v-for="food in recommendedFoods"
             :key="food.id"
             v-bind="food"
           />
+        </div>
+        <div v-else class="flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+          <ShoppingBagIcon class="w-12 h-12 text-gray-300 mb-3" />
+          <p class="text-sm font-bold text-gray-400">暂无推荐食品</p>
+          <router-link to="/food-hall" class="mt-3 text-sm font-bold text-green-600 hover:underline">去逛逛食品大厅</router-link>
         </div>
       </section>
 
@@ -210,12 +225,29 @@
             查看全部 <ChevronRightIcon class="w-5 h-5" />
           </router-link>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Recipe skeleton loading -->
+        <div v-if="recipesLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div v-for="i in 4" :key="i" class="bg-white rounded-3xl border border-gray-100 overflow-hidden animate-pulse">
+            <div class="h-40 bg-gray-100"></div>
+            <div class="p-5">
+              <div class="h-5 bg-gray-100 rounded-xl w-3/4 mb-3"></div>
+              <div class="h-3 bg-gray-100 rounded-xl w-full mb-2"></div>
+              <div class="h-3 bg-gray-100 rounded-xl w-2/3"></div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="recipes.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <RecipeCard
             v-for="recipe in recipes"
             :key="recipe.id"
             v-bind="recipe"
           />
+        </div>
+        <div v-else class="flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+          <UtensilsIcon class="w-12 h-12 text-gray-300 mb-3" />
+          <p class="text-sm font-bold text-gray-400">暂无食谱推荐</p>
+          <router-link to="/recipes" class="mt-3 text-sm font-bold text-green-600 hover:underline">去看看食谱大全</router-link>
         </div>
       </section>
 
@@ -230,7 +262,24 @@
             进入社区 <ChevronRightIcon class="w-5 h-5" />
           </router-link>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- Community skeleton loading -->
+        <div v-if="postsLoading" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div v-for="i in 2" :key="i" class="rounded-3xl border border-gray-100 bg-white p-6 animate-pulse">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-full bg-gray-100"></div>
+              <div>
+                <div class="h-4 bg-gray-100 rounded-xl w-20 mb-1"></div>
+                <div class="h-3 bg-gray-100 rounded-xl w-28"></div>
+              </div>
+            </div>
+            <div class="h-5 bg-gray-100 rounded-xl w-3/4 mb-3"></div>
+            <div class="h-4 bg-gray-100 rounded-xl w-full mb-1"></div>
+            <div class="h-4 bg-gray-100 rounded-xl w-2/3 mb-4"></div>
+            <div class="h-48 bg-gray-100 rounded-2xl"></div>
+          </div>
+        </div>
+        <div v-else-if="communityPosts.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <router-link
             v-for="(post, index) in communityPosts"
             :key="post.id"
@@ -256,6 +305,11 @@
               </span>
             </div>
           </router-link>
+        </div>
+        <div v-else class="flex flex-col items-center justify-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+          <MessageSquareIcon class="w-12 h-12 text-gray-300 mb-3" />
+          <p class="text-sm font-bold text-gray-400">暂无社区动态</p>
+          <router-link to="/community" class="mt-3 text-sm font-bold text-green-600 hover:underline">去社区看看吧</router-link>
         </div>
       </section>
     </div>
@@ -283,6 +337,8 @@ import {
   Clock as ClockIcon,
   CalendarCheck as CalendarCheckIcon,
   CheckCircle as CheckCircleIcon,
+  ShoppingBag as ShoppingBagIcon,
+  UtensilsCrossed as UtensilsIcon,
 } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
@@ -294,10 +350,14 @@ const postImgErrorFlags = ref<Record<number, boolean>>({})
 const expiryReminders = ref<{ foodName: string; expireDate: string }[]>([])
 const signedInToday = ref(false)
 const signInLoading = ref(false)
-const notices = ref<{ id: number; title: string; content: string }[]>([])
 const bannerImages = ref<{ id: number; title: string; imageUrl: string }[]>([])
 const bannerIndex = ref(0)
 let bannerTimer: ReturnType<typeof setInterval> | null = null
+
+// Loading states
+const foodsLoading = ref(true)
+const recipesLoading = ref(true)
+const postsLoading = ref(true)
 
 function handlePostImageError(index: number) {
   postImgErrorFlags.value[index] = true
@@ -312,49 +372,78 @@ function getPostImage(post: typeof communityPosts.value[0], index: number): stri
 
 
 async function loadData() {
+  foodsLoading.value = true
+  recipesLoading.value = true
+  postsLoading.value = true
+
   try {
-    const [foodsResult, recipesResult, postsResult, expiryResult] = await Promise.all([
+    const [foodsResult, recipesResult, postsResult, expiryResult] = await Promise.allSettled([
       recommendApi.getFoods(4),
       recommendApi.getRecipes(4),
       communityApi.listPosts({ pageNum: 1, pageSize: 2 }),
       orderApi.getExpiryReminder(24).catch(() => []),
     ])
-    recommendedFoods.value = (foodsResult.foods || []).map((r: any) => mapFoodToCard(r))
-    recipes.value = ((Array.isArray(recipesResult) ? recipesResult : []) as any[]).map((r: any) => ({
-      id: r.recipeId || r.articleId || r.id,
-      name: r.title,
-      image: getRecipeImage(r.coverImg),
-      tags: r.tags || [],
-      summary: r.summary || '',
-    }))
-    communityPosts.value = (postsResult.records as any[]).map((p: any) => ({
-      id: p.postId,
-      user: `用户${p.userId}`,
-      avatar: getAvatarImage(p.userId, String(p.userId)),
-      title: p.title,
-      content: p.content,
-      images: p.imgList ? [p.imgList] : [],
-      likes: p.likeCount || 0,
-      comments: p.commentCount || 0,
-      time: p.createTime,
-    }))
-    expiryReminders.value = (expiryResult as any[]).map((f: any) => ({
-      foodName: f.foodName,
-      expireDate: f.expireDate,
-    }))
+
+    if (foodsResult.status === 'fulfilled') {
+      recommendedFoods.value = (foodsResult.value.foods || []).map((r: unknown) => mapFoodToCard(r as Parameters<typeof mapFoodToCard>[0]))
+    } else {
+      recommendedFoods.value = []
+    }
+    foodsLoading.value = false
+
+    if (recipesResult.status === 'fulfilled') {
+      const val = recipesResult.value
+      recipes.value = ((Array.isArray(val) ? val : []) as unknown[]).map((r: unknown) => {
+        const rec = r as Record<string, unknown>
+        return {
+          id: rec.recipeId || rec.articleId || rec.id,
+          name: rec.title,
+          image: getRecipeImage(rec.coverImg as string | undefined),
+          tags: (rec.tags as string[]) || [],
+          summary: (rec.summary as string) || '',
+        }
+      })
+    } else {
+      recipes.value = []
+    }
+    recipesLoading.value = false
+
+    if (postsResult.status === 'fulfilled') {
+      communityPosts.value = ((postsResult.value.records as unknown[]) || []).map((p: unknown) => {
+        const post = p as Record<string, unknown>
+        return {
+          id: post.postId,
+          user: `用户${post.userId}`,
+          avatar: getAvatarImage(post.userId as number, String(post.userId)),
+          title: post.title as string,
+          content: post.content as string,
+          images: post.imgList ? [post.imgList as string] : [],
+          likes: (post.likeCount as number) || 0,
+          comments: (post.commentCount as number) || 0,
+          time: post.createTime as string,
+        }
+      })
+    } else {
+      communityPosts.value = []
+    }
+    postsLoading.value = false
+
+    if (expiryResult.status === 'fulfilled') {
+      expiryReminders.value = ((expiryResult.value as unknown[]) || []).map((f: unknown) => {
+        const rec = f as Record<string, unknown>
+        return { foodName: rec.foodName as string, expireDate: rec.expireDate as string }
+      })
+    } else {
+      expiryReminders.value = []
+    }
+
     if (authStore.isAuthenticated()) {
       await checkSignedIn()
     }
-    // Load notices from backend
-    try {
-      const noticeList = await api.get<Array<{ noticeId: number; title: string; content: string; status: number }>>('/system/notice/list')
-      notices.value = (noticeList || [])
-        .filter((n: any) => n.status === 1)
-        .map((n: any) => ({ id: n.noticeId, title: n.title, content: n.content }))
-    } catch {
-      notices.value = []
-    }
-  } catch (e: any) {
+  } catch (e: unknown) {
+    foodsLoading.value = false
+    recipesLoading.value = false
+    postsLoading.value = false
     toast.show('数据加载失败，请检查网络连接', 'error')
   }
 }
@@ -363,7 +452,7 @@ async function checkSignedIn() {
   try {
     const history = await pointsApi.getHistory()
     const today = new Date().toISOString().slice(0, 10)
-    signedInToday.value = history.some((r: any) =>
+    signedInToday.value = history.some((r: { sourceType: string; createTime: string }) =>
       r.sourceType === '每日签到' && r.createTime && r.createTime.slice(0, 10) === today
     )
   } catch {
@@ -377,8 +466,8 @@ async function handleSignIn() {
     await pointsApi.signIn()
     signedInToday.value = true
     toast.show('签到成功！获得 10 绿色积分', 'success')
-  } catch (e: any) {
-    toast.show(e?.message || '签到失败，请重试', 'error')
+  } catch (e: unknown) {
+    toast.show(e instanceof Error ? e.message : '签到失败，请重试', 'error')
   } finally {
     signInLoading.value = false
   }
@@ -390,8 +479,8 @@ onMounted(() => {
   api.get<Array<{ bannerId: number; title: string; imgUrl: string; status: number }>>('/system/banner/list')
     .then((list) => {
       bannerImages.value = (list || [])
-        .filter((b: any) => b.status === 1)
-        .map((b: any) => ({ id: b.bannerId, title: b.title, imageUrl: b.imgUrl }))
+        .filter((b) => b.status === 1)
+        .map((b) => ({ id: b.bannerId, title: b.title, imageUrl: b.imgUrl }))
       if (bannerImages.value.length > 1) {
         bannerTimer = setInterval(() => {
           bannerIndex.value = (bannerIndex.value + 1) % bannerImages.value.length
