@@ -455,6 +455,10 @@ async function loadFood() {
   try {
     const id = Number(route.params.id)
     foodData.value = await foodApi.getById(id)
+    // 记录浏览行为
+    if (authStore.userId) {
+      recommendApi.recordBehavior({ userId: authStore.userId, targetType: 'food', targetId: id, behaviorType: 'view' }).catch(() => {})
+    }
   } catch {
     foodData.value = null
   } finally {
@@ -584,6 +588,10 @@ async function submitReview() {
     await reviewApi.addReview({ foodId: id, content: reviewForm.value.content.trim(), rating: reviewForm.value.rating })
     reviewForm.value = { content: '', rating: 5 }
     toast.show('评论发表成功', 'success')
+    // 记录评论行为
+    if (authStore.userId) {
+      recommendApi.recordBehavior({ userId: authStore.userId, targetType: 'food', targetId: id, behaviorType: 'comment' }).catch(() => {})
+    }
     await loadReviews()
   } catch (e: unknown) {
     toast.show(e instanceof Error ? e.message : '评论失败', 'error')

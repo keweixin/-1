@@ -22,6 +22,10 @@
         <div class="flex items-center gap-6 text-sm text-gray-400 mb-8 pb-8 border-b border-gray-100">
           <span>{{ article.date }}</span>
           <span>{{ article.views }} 阅读</span>
+          <button @click="handleFavorite" :class="[isFavorited ? 'text-red-500' : 'text-gray-400 hover:text-red-500']" class="flex items-center gap-1.5 transition-colors cursor-pointer">
+            <HeartIcon :class="[isFavorited ? 'fill-red-500' : '']" class="w-4 h-4" />
+            {{ isFavorited ? '已收藏' : '收藏' }}
+          </button>
         </div>
         <div class="prose prose-lg max-w-none">
           <p class="text-gray-600 leading-relaxed">{{ article.content }}</p>
@@ -36,14 +40,17 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { articleApi } from '@/api/article'
 import { recommendApi } from '@/api/recommend'
-import { ChevronRight as ChevronRightIcon } from 'lucide-vue-next'
+import { ChevronRight as ChevronRightIcon, Heart as HeartIcon } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { getArticleImage } from '@/utils/images'
+import { useToast } from '@/composables/useToast'
+const toast = useToast()
 
 const route = useRoute()
 const authStore = useAuthStore()
 const loading = ref(true)
 const imgError = ref(false)
+const isFavorited = ref(false)
 const article = ref<{ title: string; image: string; date: string; views: number; content: string }>({
   title: '',
   image: '',
@@ -87,4 +94,30 @@ async function loadArticle() {
 }
 
 onMounted(loadArticle)
+
+async function loadFavoriteStatus() {
+  if (!authStore.userId) return
+  const id = Number(route.params.id)
+  try {
+    const res = await recommendApi.checkFavorite('article', id)
+    isFavorited.value = res === true
+  } catch {
+    isFavorited.value = false
+  }
+}
+
+async function handleFavorite() {
+  if (!authStore.userId) {
+    toast.show('请先登录', 'warning')
+    return
+  }
+  const id = Number(route.params.id)
+  try {
+    const res = await recommendApi.toggleFavorite('article', id)
+    isFavorited.value = res === true
+    toast.show(isFavorited.value ? '已收藏' : '已取消收藏', 'success')
+  } catch (e: unknown) {
+    toast.show('操作失败：' + (e instanceof Error ? e.message : '请先登录'), 'error')
+  }
+}
 </script>

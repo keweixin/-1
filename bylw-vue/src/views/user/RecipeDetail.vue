@@ -49,10 +49,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { articleApi, type Recipe } from '@/api/article'
+import { recommendApi } from '@/api/recommend'
 import { getRecipeImage } from '@/utils/images'
 import { ChevronRight as ChevronRightIcon } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
+const authStore = useAuthStore()
 const recipeData = ref<Recipe | null>(null)
 const loading = ref(true)
 const imageError = ref(false)
@@ -73,6 +76,10 @@ async function loadRecipe() {
   try {
     const id = Number(route.params.id)
     recipeData.value = await articleApi.getRecipe(id)
+    // 记录浏览行为
+    if (authStore.userId) {
+      recommendApi.recordBehavior({ userId: authStore.userId, targetType: 'recipe', targetId: id, behaviorType: 'view' }).catch(() => {})
+    }
   } catch {
     recipeData.value = null
   } finally {
