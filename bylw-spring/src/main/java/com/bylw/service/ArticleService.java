@@ -15,7 +15,7 @@ public interface ArticleService {
     boolean updateArticle(Article article);
     boolean incrementReadCount(Integer articleId);
 
-    Page<Recipe> listRecipes(Integer pageNum, Integer pageSize, String keyword);
+    Page<Recipe> listRecipes(Integer pageNum, Integer pageSize, String keyword, String suitablePeople);
     Recipe getRecipeById(Integer recipeId);
     Recipe saveRecipe(Recipe recipe);
     boolean deleteRecipe(Integer recipeId);

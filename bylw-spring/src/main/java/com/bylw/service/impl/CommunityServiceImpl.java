@@ -192,4 +192,13 @@ public class CommunityServiceImpl implements CommunityService {
         }
         return false;
     }
+
+    @Override
+    public Page<Comment> listAllComments(Integer pageNum, Integer pageSize) {
+        Page<Comment> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Comment::getDeleted, 0)
+               .orderByDesc(Comment::getCreateTime);
+        return commentMapper.selectPage(page, wrapper);
+    }
 }

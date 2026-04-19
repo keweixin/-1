@@ -17,4 +17,5 @@ export const merchantApi = {
   saveFood: (data: Partial<FoodDTO>) => api.post<FoodDTO>('/food', data),
   updateFood: (data: Partial<FoodDTO>) => api.put<FoodDTO>('/food', data),
   acceptOrder: (orderId: number) => api.put<boolean>(`/merchant/orders/accept/${orderId}`),
+  rejectOrder: (orderId: number) => api.put<boolean>(`/merchant/orders/reject/${orderId}`),
 }

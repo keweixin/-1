@@ -19,4 +19,5 @@ public interface CommunityService {
     Comment getCommentById(Integer commentId);
     Page<Comment> getComments(Integer postId, Integer pageNum, Integer pageSize);
     boolean deleteComment(Integer commentId);
+    Page<Comment> listAllComments(Integer pageNum, Integer pageSize);
 }

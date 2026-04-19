@@ -85,6 +85,7 @@ import {
   ShoppingBag as FoodIcon,
   ClipboardList as OrderIcon,
   LogOut as LogOutIcon,
+  UserCircle as ProfileIcon,
 } from 'lucide-vue-next'
 import { authApi } from '@/api/auth'
 
@@ -99,6 +100,7 @@ const navItems = [
   { name: '工作台', path: '/merchant', icon: HomeIcon },
   { name: '我的食品', path: '/merchant/foods', icon: FoodIcon },
   { name: '我的订单', path: '/merchant/orders', icon: OrderIcon },
+  { name: '个人中心', path: '/merchant/profile', icon: ProfileIcon },
 ]
 
 const userId = computed(() => authStore.userId || '-')

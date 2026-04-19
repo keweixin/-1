@@ -93,12 +93,16 @@ import {
   ClipboardList,
   FileWarning,
   Gift,
+  Heart,
   LayoutDashboard as LayoutDashboardIcon,
   LogOut as LogOutIcon,
   MessageSquare,
   Settings,
   ShoppingBag,
+  Star,
+  Tags,
   Truck,
+  UserCircle,
   Users,
 } from 'lucide-vue-next'
 
@@ -108,14 +112,18 @@ const authStore = useAuthStore()
 
 const adminNavItems = [
   { name: '工作台', path: '/admin', icon: LayoutDashboardIcon },
+  { name: '个人中心', path: '/admin/profile', icon: UserCircle },
   { name: '用户管理', path: '/admin/users', icon: Users },
   { name: '食材资源', path: '/admin/foods', icon: ShoppingBag },
+  { name: '分类管理', path: '/admin/categories', icon: Tags },
   { name: '订单服务', path: '/admin/orders', icon: ClipboardList },
   { name: '内容管理', path: '/admin/content', icon: BookOpen },
   { name: '社区审核', path: '/admin/community', icon: MessageSquare },
   { name: '积分管理', path: '/admin/points', icon: Gift },
   { name: '售后申诉', path: '/admin/appeals', icon: FileWarning },
   { name: '配送调度', path: '/admin/dispatch', icon: Truck },
+  { name: '收藏管理', path: '/admin/favorites', icon: Heart },
+  { name: '评论管理', path: '/admin/reviews', icon: Star },
   { name: '系统设置', path: '/admin/settings', icon: Settings },
 ]
 

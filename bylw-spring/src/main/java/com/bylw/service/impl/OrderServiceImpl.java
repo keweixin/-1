@@ -209,6 +209,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResponse<OrderDTO> listAll(Integer pageNum, Integer pageSize, String status) {
+        return listAll(pageNum, pageSize, status, null);
+    }
+
+    @Override
+    public PageResponse<OrderDTO> listAll(Integer pageNum, Integer pageSize, String status, String keyword) {
         Page<Order> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Order::getDeleted, 0)
@@ -216,6 +221,9 @@ public class OrderServiceImpl implements OrderService {
 
         if (status != null && !status.isEmpty()) {
             wrapper.eq(Order::getOrderStatus, status);
+        }
+        if (keyword != null && !keyword.isBlank()) {
+            wrapper.like(Order::getOrderNo, keyword);
         }
 
         Page<Order> result = orderMapper.selectPage(page, wrapper);
@@ -447,6 +455,17 @@ public class OrderServiceImpl implements OrderService {
                .orderByDesc(Order::getCreateTime)
                .last("LIMIT 10");
         return orderMapper.selectList(wrapper);
+    }
+
+    @Override
+    public boolean deleteOrder(Integer orderId) {
+        Order order = orderMapper.selectById(orderId);
+        if (order == null) {
+            return false;
+        }
+        order.setDeleted(1);
+        orderMapper.updateById(order);
+        return true;
     }
 
     private String generateOrderNo() {

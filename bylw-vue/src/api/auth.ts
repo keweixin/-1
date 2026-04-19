@@ -50,5 +50,7 @@ export const authApi = {
   updateUserInfo: (data: UpdateUserInfoDTO) => api.put<User>('/auth/userinfo', data),
   resetPassword: (data: { username: string; phone: string; newPassword: string }) =>
     api.post<boolean>('/auth/reset-password', data),
+  changePassword: (data: { oldPassword: string; newPassword: string }) =>
+    api.put<boolean>('/auth/change-password', data),
   logout: () => api.post<void>('/auth/logout'),
 }

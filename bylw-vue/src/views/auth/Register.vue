@@ -116,6 +116,39 @@
             </div>
           </div>
 
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">确认密码</label>
+            <div class="relative group">
+              <LockIcon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 transition-colors" :class="focusColor" />
+              <input
+                v-model="formData.confirmPassword"
+                type="password"
+                required
+                placeholder="请再次输入登录密码"
+                class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm outline-none transition-all"
+                :class="inputFocusClass"
+                @focus="focusedField = 'confirmPassword'"
+                @blur="focusedField = ''"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">昵称（可选）</label>
+            <div class="relative group">
+              <UserIcon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 transition-colors" :class="focusColor" />
+              <input
+                v-model="formData.nickname"
+                type="text"
+                placeholder="设置您的昵称"
+                class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm outline-none transition-all"
+                :class="inputFocusClass"
+                @focus="focusedField = 'nickname'"
+                @blur="focusedField = ''"
+              />
+            </div>
+          </div>
+
           <button
             type="submit"
             :disabled="loading"
@@ -170,6 +203,8 @@ const formData = reactive({
   username: '',
   phone: '',
   password: '',
+  confirmPassword: '',
+  nickname: '',
   roleType: 1,
 })
 
@@ -212,6 +247,10 @@ const handleRegister = async () => {
     errorMsg.value = '密码长度不能少于6位'
     return
   }
+  if (formData.password !== formData.confirmPassword) {
+    errorMsg.value = '两次输入的密码不一致'
+    return
+  }
   if (formData.phone && !/^1[3-9]\d{9}$/.test(formData.phone)) {
     errorMsg.value = '手机号格式不正确'
     return
@@ -223,6 +262,7 @@ const handleRegister = async () => {
       username: formData.username,
       phone: formData.phone,
       password: formData.password,
+      nickname: formData.nickname || undefined,
       roleType: formData.roleType,
     })
     router.push('/login')

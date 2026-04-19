@@ -34,5 +34,6 @@ export const userApi = {
   getById: (id: number) => api.get<UserDTO>(`/user/${id}`),
   update: (data: UpdateUserInfoDTO) => api.put<UserDTO>('/auth/userinfo', data),
   updateStatus: (id: number, status: number) => api.put<boolean>(`/user/status/${id}?status=${status}`),
+  delete: (id: number) => api.delete<boolean>(`/user/${id}`),
   count: () => api.get<number>('/user/count'),
 }

@@ -6,11 +6,14 @@
         <h1 class="text-2xl font-black text-gray-900">我的食品</h1>
         <p class="text-sm text-gray-400 mt-1">共 {{ total }} 件食品</p>
       </div>
-      <button @click="openAddModal"
-        class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm">
-        <PlusIcon class="w-4 h-4" />
-        新增食品
-      </button>
+      <div class="flex items-center gap-3">
+        <input v-model.trim="searchKeyword" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-blue-500" placeholder="搜索食品名称" @keyup.enter="loadFoods" />
+        <button @click="openAddModal"
+          class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <PlusIcon class="w-4 h-4" />
+          新增食品
+        </button>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -19,7 +22,7 @@
     </div>
 
     <!-- Empty -->
-    <div v-else-if="foods.length === 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">
+    <div v-else-if="filteredFoods.length === 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">
       <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <ShoppingBagIcon class="w-8 h-8 text-gray-300" />
       </div>
@@ -43,7 +46,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="food in foods" :key="food.foodId" class="hover:bg-blue-50/30 transition-colors group">
+            <tr v-for="food in filteredFoods" :key="food.foodId" class="hover:bg-blue-50/30 transition-colors group">
               <td class="px-5 py-4 font-bold text-gray-900">
                 <div class="flex items-center gap-2">
                   {{ food.foodName }}
@@ -71,6 +74,7 @@
                   <button @click="toggleStatus(food)" class="text-xs font-bold hover:underline" :class="food.status === 1 ? 'text-red-500' : 'text-green-500'">
                     {{ food.status === 1 ? '下架' : '上架' }}
                   </button>
+                  <button @click="deleteFood(food.foodId)" class="text-xs text-red-600 font-bold hover:underline">删除</button>
                 </div>
               </td>
             </tr>
@@ -176,6 +180,7 @@ const foods = ref<FoodDTO[]>([])
 const total = ref(0)
 const pageNum = ref(1)
 const pageSize = 10
+const searchKeyword = ref('')
 const totalPages = computed(() => Math.ceil(total.value / pageSize) || 1)
 
 const showModal = ref(false)
@@ -190,6 +195,11 @@ const form = ref({
   description: '',
   nutritionDesc: '',
   coverImg: '',
+})
+
+const filteredFoods = computed(() => {
+  if (!searchKeyword.value) return foods.value
+  return foods.value.filter(f => f.foodName?.includes(searchKeyword.value))
 })
 
 async function loadFoods() {
@@ -264,6 +274,17 @@ async function toggleStatus(food: FoodDTO) {
     await loadFoods()
   } catch (e: unknown) {
     toast.show(e instanceof Error ? e.message : '操作失败', 'error')
+  }
+}
+
+async function deleteFood(foodId: number) {
+  if (!confirm('确定要删除此食品吗？')) return
+  try {
+    await foodApi.delete(foodId)
+    toast.show('食品已删除', 'success')
+    await loadFoods()
+  } catch (e: unknown) {
+    toast.show(e instanceof Error ? e.message : '删除失败', 'error')
   }
 }
 

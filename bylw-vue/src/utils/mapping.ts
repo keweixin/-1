@@ -14,6 +14,8 @@ export interface FoodCardItem {
   store: string
   tags: string[]
   matchScore?: number
+  matchReason?: string
+  matchedTags?: string[]
 }
 
 // Map API FoodDTO to FoodCardItem
@@ -31,6 +33,8 @@ export function mapFoodToCard(dto: FoodDTO): FoodCardItem {
     store: '官方商城',
     tags,
     matchScore: dto.matchScore,
+    matchReason: dto.matchReason,
+    matchedTags: dto.matchedTags,
   }
 }
 

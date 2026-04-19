@@ -86,4 +86,22 @@ public class FoodController {
         authUtil.verifyAdmin(request);
         return Result.success(foodService.updateStatus(id, status));
     }
+
+    @PostMapping("/categories")
+    public Result<?> saveCategory(HttpServletRequest request, @RequestBody FoodCategory category) {
+        authUtil.verifyAdmin(request);
+        return Result.success(foodService.saveCategory(category));
+    }
+
+    @PutMapping("/categories")
+    public Result<?> updateCategory(HttpServletRequest request, @RequestBody FoodCategory category) {
+        authUtil.verifyAdmin(request);
+        return Result.success(foodService.updateCategory(category));
+    }
+
+    @DeleteMapping("/categories/{id}")
+    public Result<?> deleteCategory(HttpServletRequest request, @PathVariable Integer id) {
+        authUtil.verifyAdmin(request);
+        return Result.success(foodService.deleteCategory(id));
+    }
 }

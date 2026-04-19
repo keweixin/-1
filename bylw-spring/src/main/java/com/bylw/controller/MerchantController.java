@@ -125,6 +125,21 @@ public class MerchantController {
         return Result.success(true);
     }
 
+    @PutMapping("/orders/reject/{id}")
+    public Result<?> rejectOrder(HttpServletRequest request, @PathVariable Integer id) {
+        Integer merchantId = getMerchantId(request);
+        Order order = orderMapper.selectById(id);
+        if (order == null) {
+            throw new IllegalArgumentException("订单不存在");
+        }
+        if (!"待接单".equals(order.getOrderStatus())) {
+            throw new IllegalArgumentException("当前订单状态不可拒单");
+        }
+        order.setOrderStatus("已取消");
+        orderMapper.updateById(order);
+        return Result.success(true);
+    }
+
     private Integer getMerchantId(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

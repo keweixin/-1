@@ -50,4 +50,7 @@ export const courierApi = {
   updateTaskStatus(orderId: number, status: string) {
     return api.put<boolean>(`/delivery/courier/status/${orderId}?status=${encodeURIComponent(status)}`)
   },
+  updateOnlineStatus(status: number) {
+    return api.put<boolean>(`/delivery/courier/online-status?status=${status}`)
+  },
 }

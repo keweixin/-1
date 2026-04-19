@@ -3,12 +3,15 @@ package com.bylw.controller;
 import com.bylw.common.AuthUtil;
 import com.bylw.common.Constants;
 import com.bylw.common.Result;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.bylw.entity.Order;
 import com.bylw.entity.Delivery;
 import com.bylw.entity.User;
+import com.bylw.entity.Courier;
 import com.bylw.mapper.DeliveryMapper;
 import com.bylw.mapper.OrderMapper;
 import com.bylw.mapper.UserMapper;
+import com.bylw.mapper.CourierMapper;
 import com.bylw.service.DeliveryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,8 @@ public class DeliveryController {
     private DeliveryMapper deliveryMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private CourierMapper courierMapper;
 
     @GetMapping("/order/{orderId}")
     public Result<?> getByOrderId(HttpServletRequest request, @PathVariable Integer orderId) {
@@ -210,5 +215,28 @@ public class DeliveryController {
             }
         }
         return Result.success(deliveryService.updateStatus(orderId, status));
+    }
+
+    @PutMapping("/courier/online-status")
+    public Result<?> updateOnlineStatus(HttpServletRequest request, @RequestParam Integer status) {
+        if (!authUtil.isCourier(request)) {
+            throw new IllegalArgumentException("权限不足");
+        }
+        Integer userId = authUtil.getUserId(request);
+        LambdaQueryWrapper<Courier> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Courier::getUserId, userId);
+        Courier courier = courierMapper.selectOne(wrapper);
+        if (courier == null) {
+            courier = new Courier();
+            courier.setUserId(userId);
+            courier.setCourierName(authUtil.getNickname(request));
+            courier.setCourierPhone(authUtil.getPhone(request));
+            courier.setStatus(status);
+            courierMapper.insert(courier);
+        } else {
+            courier.setStatus(status);
+            courierMapper.updateById(courier);
+        }
+        return Result.success(true);
     }
 }

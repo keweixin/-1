@@ -1,6 +1,7 @@
 package com.bylw.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bylw.config.RecommendConfigHolder;
 import com.bylw.dto.FoodDTO;
 import com.bylw.dto.RecommendResultDTO;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -618,5 +620,42 @@ public class RecommendServiceImpl implements RecommendService {
             case "view", "browse", "read" -> new BigDecimal("1.0");
             default -> new BigDecimal("1.0");
         };
+    }
+
+    @Override
+    public Page<UserBehavior> listAdminFavorites(Integer pageNum, Integer pageSize) {
+        Page<UserBehavior> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<UserBehavior> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserBehavior::getBehaviorType, "favorite")
+               .orderByDesc(UserBehavior::getCreateTime);
+        return behaviorMapper.selectPage(page, wrapper);
+    }
+
+    @Override
+    public Page<UserBehavior> listMyFavorites(Integer userId, Integer pageNum, Integer pageSize) {
+        Page<UserBehavior> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<UserBehavior> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserBehavior::getUserId, userId)
+               .eq(UserBehavior::getBehaviorType, "favorite")
+               .orderByDesc(UserBehavior::getCreateTime);
+        return behaviorMapper.selectPage(page, wrapper);
+    }
+
+    @Override
+    public Map<String, Object> getFavoritesStats() {
+        LambdaQueryWrapper<UserBehavior> totalWrapper = new LambdaQueryWrapper<>();
+        totalWrapper.eq(UserBehavior::getBehaviorType, "favorite");
+        long totalCount = behaviorMapper.selectCount(totalWrapper);
+
+        LocalDateTime todayStart = LocalDateTime.now().with(LocalTime.MIN);
+        LambdaQueryWrapper<UserBehavior> todayWrapper = new LambdaQueryWrapper<>();
+        todayWrapper.eq(UserBehavior::getBehaviorType, "favorite")
+                    .ge(UserBehavior::getCreateTime, todayStart);
+        long todayCount = behaviorMapper.selectCount(todayWrapper);
+
+        return Map.of(
+            "totalFavorites", totalCount,
+            "todayFavorites", todayCount
+        );
     }
 }

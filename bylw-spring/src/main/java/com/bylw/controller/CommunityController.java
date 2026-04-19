@@ -4,6 +4,7 @@ import com.bylw.common.AuthUtil;
 import com.bylw.common.Result;
 import com.bylw.entity.Post;
 import com.bylw.entity.Comment;
+import com.bylw.mapper.PostMapper;
 import com.bylw.service.CommunityService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class CommunityController {
 
     @Autowired
     private AuthUtil authUtil;
+
+    @Autowired
+    private PostMapper postMapper;
 
     @PostMapping("/post")
     public Result<?> publish(HttpServletRequest request, @RequestBody Post post) {
@@ -86,14 +90,35 @@ public class CommunityController {
     @DeleteMapping("/comment/{id}")
     public Result<?> deleteComment(HttpServletRequest request, @PathVariable Integer id) {
         Integer userId = authUtil.getUserId(request);
-        // 归属权校验：只有评论发布者才能删除自己的评论
         Comment comment = communityService.getCommentById(id);
         if (comment == null) {
             return Result.error(404, "评论不存在");
         }
-        if (!comment.getUserId().equals(userId)) {
+        // 管理员可删除任何评论，普通用户只能删除自己的
+        boolean isAdmin = authUtil.isAdmin(request);
+        if (!isAdmin && !comment.getUserId().equals(userId)) {
             throw new IllegalArgumentException("无权删除他人的评论");
         }
         return Result.success(communityService.deleteComment(id));
+    }
+
+    @GetMapping("/comment/admin/list")
+    public Result<?> listAllComments(HttpServletRequest request,
+                                      @RequestParam(defaultValue = "1") Integer pageNum,
+                                      @RequestParam(defaultValue = "10") Integer pageSize) {
+        authUtil.verifyAdmin(request);
+        return Result.success(communityService.listAllComments(pageNum, pageSize));
+    }
+
+    @PutMapping("/post/recommend/{id}")
+    public Result<?> toggleRecommend(HttpServletRequest request, @PathVariable Integer id) {
+        authUtil.verifyAdmin(request);
+        Post post = postMapper.selectById(id);
+        if (post == null) {
+            throw new IllegalArgumentException("帖子不存在");
+        }
+        post.setRecommended(post.getRecommended() != null && post.getRecommended() == 1 ? 0 : 1);
+        postMapper.updateById(post);
+        return Result.success(post.getRecommended());
     }
 }

@@ -61,15 +61,22 @@ public class OrderController {
     public Result<?> listAll(HttpServletRequest request,
                              @RequestParam(defaultValue = "1") Integer pageNum,
                              @RequestParam(defaultValue = "10") Integer pageSize,
-                             @RequestParam(required = false) String status) {
+                             @RequestParam(required = false) String status,
+                             @RequestParam(required = false) String keyword) {
         authUtil.verifyAdmin(request);
-        return Result.success(orderService.listAll(pageNum, pageSize, status));
+        return Result.success(orderService.listAll(pageNum, pageSize, status, keyword));
     }
 
     @PutMapping("/status/{id}")
     public Result<?> updateStatus(HttpServletRequest request, @PathVariable Integer id, @RequestParam String status) {
         authUtil.verifyAdmin(request);
         return Result.success(orderService.updateStatus(id, status));
+    }
+
+    @DeleteMapping("/{id}")
+    public Result<?> deleteOrder(HttpServletRequest request, @PathVariable Integer id) {
+        authUtil.verifyAdmin(request);
+        return Result.success(orderService.deleteOrder(id));
     }
 
     @PutMapping("/mock-pay/{id}")

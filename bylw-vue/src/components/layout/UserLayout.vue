@@ -132,6 +132,7 @@ import {
   ClipboardList,
   Gift as GiftIcon,
   Headphones as HeadphonesIcon,
+  Heart,
   Home,
   ShoppingBag as ShoppingBagIcon,
   User,
@@ -164,6 +165,7 @@ const navItems = [
   { name: '积分商城', path: '/points', icon: GiftIcon },
   { name: '我的订单', path: '/orders', icon: ClipboardList },
   { name: '售后申诉', path: '/appeals', icon: HeadphonesIcon },
+  { name: '我的收藏', path: '/favorites', icon: Heart },
   { name: '个人中心', path: '/profile', icon: User },
 ]
 

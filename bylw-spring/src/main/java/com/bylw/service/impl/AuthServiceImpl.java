@@ -189,6 +189,42 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
+    @Override
+    public boolean changePassword(Integer userId, String oldPassword, String newPassword) {
+        if (oldPassword == null || oldPassword.isBlank()) {
+            throw new IllegalArgumentException("原密码不能为空");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("新密��长度不能少于8位");
+        }
+        if (oldPassword.equals(newPassword)) {
+            throw new IllegalArgumentException("新密码不能与原密码相同");
+        }
+        validatePasswordStrength(newPassword);
+
+        User user = userMapper.selectById(userId);
+        if (user == null || (user.getDeleted() != null && user.getDeleted() == 1)) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+
+        String storedPwd = user.getPassword();
+        if (storedPwd.startsWith("$2")) {
+            if (!encoder.matches(oldPassword, storedPwd)) {
+                throw new IllegalArgumentException("原密码错误");
+            }
+        } else {
+            String md5Pwd = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+            if (!md5Pwd.equals(storedPwd)) {
+                throw new IllegalArgumentException("原密码错误");
+            }
+        }
+
+        user.setPassword(encoder.encode(newPassword));
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.updateById(user);
+        return true;
+    }
+
     private String normalize(String value) {
         if (value == null) {
             return null;

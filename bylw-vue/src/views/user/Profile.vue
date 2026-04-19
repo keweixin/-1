@@ -156,6 +156,10 @@
               <span class="font-medium text-gray-700">推荐偏好说明</span>
               <ChevronRightIcon class="w-5 h-5 text-gray-400" />
             </button>
+            <button class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all" @click="pwdModal = true">
+              <span class="font-medium text-gray-700">修改密码</span>
+              <ChevronRightIcon class="w-5 h-5 text-gray-400" />
+            </button>
             <button
               class="w-full flex items-center justify-between p-4 bg-red-50 rounded-2xl hover:bg-red-100 transition-all md:col-span-2"
               @click="handleLogout"
@@ -305,6 +309,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Password Modal -->
+    <div
+      v-if="pwdModal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+      @click.self="pwdModal = false"
+    >
+      <div class="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl">
+        <h3 class="text-xl font-black text-gray-900 mb-6">修改密码</h3>
+        <div class="space-y-4">
+          <FormField label="原密码">
+            <input v-model="pwdForm.oldPassword" type="password" placeholder="请输入原密码"
+              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500" />
+          </FormField>
+          <FormField label="新密码">
+            <input v-model="pwdForm.newPassword" type="password" placeholder="至少8位，含大小写字母、数字、特殊字符"
+              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500" />
+          </FormField>
+          <FormField label="确认新密码">
+            <input v-model="pwdForm.confirmPassword" type="password" placeholder="再次输入新密码"
+              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500" />
+          </FormField>
+        </div>
+        <div v-if="pwdError" class="mt-3 text-sm text-red-600 font-medium">{{ pwdError }}</div>
+        <div class="flex gap-3 mt-6">
+          <button class="flex-1 py-3 rounded-xl font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all" @click="pwdModal = false">取消</button>
+          <button class="flex-1 py-3 rounded-xl font-bold bg-green-600 text-white hover:bg-green-700 transition-all disabled:bg-green-300" :disabled="pwdSaving" @click="handlePasswordChange">
+            {{ pwdSaving ? '修改中...' : '确认修改' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -337,6 +373,10 @@ const saving = ref(false)
 const dietSaving = ref(false)
 const editModal = ref(false)
 const dietModal = ref(false)
+const pwdModal = ref(false)
+const pwdSaving = ref(false)
+const pwdError = ref('')
+const pwdForm = ref({ oldPassword: '', newPassword: '', confirmPassword: '' })
 
 const editForm = ref({
   nickname: '',
@@ -494,6 +534,29 @@ function openAddressEdit() {
 
 function showRecommendExplain() {
   showToast('系统根据您的口味偏好、过敏原、慢病史进行健康过滤和口味匹配排序，可在饮食档案中维护这些信息', 'info')
+}
+
+async function handlePasswordChange() {
+  pwdError.value = ''
+  if (!pwdForm.value.oldPassword || !pwdForm.value.newPassword || !pwdForm.value.confirmPassword) {
+    pwdError.value = '请填写所有密码字段'
+    return
+  }
+  if (pwdForm.value.newPassword !== pwdForm.value.confirmPassword) {
+    pwdError.value = '两次输入的新密码不一致'
+    return
+  }
+  pwdSaving.value = true
+  try {
+    await authApi.changePassword({ oldPassword: pwdForm.value.oldPassword, newPassword: pwdForm.value.newPassword })
+    pwdModal.value = false
+    pwdForm.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
+    showToast('密码修改成功', 'success')
+  } catch (e: unknown) {
+    pwdError.value = e instanceof Error ? e.message : '密码修改失败'
+  } finally {
+    pwdSaving.value = false
+  }
 }
 
 const InfoItem = defineComponent({

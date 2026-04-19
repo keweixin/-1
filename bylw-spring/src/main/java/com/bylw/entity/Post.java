@@ -19,6 +19,8 @@ public class Post {
     private Integer commentCount;
     private String auditStatus;
 
+    private Integer recommended;
+
     @TableField(fill = FieldFill.INSERT)
     private Integer deleted;
 

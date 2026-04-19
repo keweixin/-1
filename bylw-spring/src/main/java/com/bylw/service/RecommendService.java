@@ -1,9 +1,11 @@
 package com.bylw.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bylw.dto.RecommendResultDTO;
 import com.bylw.entity.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 推荐服务接口 - 包含推荐算法、行为记录、文章食谱推荐功能
@@ -43,4 +45,10 @@ public interface RecommendService {
      * @return true=已收藏, false=已取消收藏
      */
     boolean toggleFavorite(Integer userId, String targetType, Integer targetId);
+
+    Page<UserBehavior> listAdminFavorites(Integer pageNum, Integer pageSize);
+
+    Page<UserBehavior> listMyFavorites(Integer userId, Integer pageNum, Integer pageSize);
+
+    Map<String, Object> getFavoritesStats();
 }

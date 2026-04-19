@@ -147,6 +147,30 @@ public class FoodServiceImpl implements FoodService {
         return tagMapper.selectList(wrapper);
     }
 
+    @Override
+    public FoodCategory saveCategory(FoodCategory category) {
+        category.setDeleted(0);
+        categoryMapper.insert(category);
+        return category;
+    }
+
+    @Override
+    public FoodCategory updateCategory(FoodCategory category) {
+        categoryMapper.updateById(category);
+        return categoryMapper.selectById(category.getCategoryId());
+    }
+
+    @Override
+    public boolean deleteCategory(Integer categoryId) {
+        FoodCategory category = categoryMapper.selectById(categoryId);
+        if (category != null) {
+            category.setDeleted(1);
+            categoryMapper.updateById(category);
+            return true;
+        }
+        return false;
+    }
+
     private FoodDTO toDTO(Food food) {
         FoodDTO dto = new FoodDTO();
         BeanUtils.copyProperties(food, dto);

@@ -3,6 +3,22 @@
     <div class="text-center mb-16">
       <h1 class="text-4xl font-black text-gray-900 mb-4">健康食谱</h1>
       <p class="text-gray-500">科学膳食，让每一口都充满营养</p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <select
+          v-model="suitablePeople"
+          class="rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-600 outline-none focus:border-green-500 shadow-sm transition"
+          @change="loadRecipes"
+        >
+          <option value="">全部人群</option>
+          <option value="儿童">儿童</option>
+          <option value="青少年">青少年</option>
+          <option value="成年人">成年人</option>
+          <option value="老年人">老年人</option>
+          <option value="孕妇">孕妇</option>
+          <option value="糖尿病患者">糖尿病患者</option>
+          <option value="高血压">高血压</option>
+        </select>
+      </div>
     </div>
 
     <div v-if="loading" class="flex items-center justify-center py-20 text-gray-400">
@@ -31,11 +47,12 @@ import { getRecipeImage } from '@/utils/images'
 
 const recipes = ref<{ id: number; name: string; image: string; tags: string[]; summary: string }[]>([])
 const loading = ref(true)
+const suitablePeople = ref('')
 
 async function loadRecipes() {
   loading.value = true
   try {
-    const result = await articleApi.listRecipes({ pageNum: 1, pageSize: 20 })
+    const result = await articleApi.listRecipes({ pageNum: 1, pageSize: 20, suitablePeople: suitablePeople.value || undefined })
     recipes.value = result.records.map((r: Recipe) => ({
       id: r.recipeId,
       name: r.title,

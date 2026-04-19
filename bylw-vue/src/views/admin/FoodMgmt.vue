@@ -112,6 +112,7 @@
                 >
                   {{ food.status === 1 ? '下架' : '上架' }}
                 </button>
+                <button class="text-gray-600 hover:text-red-600 hover:underline text-sm font-medium" @click="handleDelete(food.foodId)">删除</button>
               </div>
             </td>
           </tr>
@@ -398,6 +399,17 @@ async function toggleStatus(food: FoodDTO) {
     setFeedback('error', error instanceof Error ? error.message : '食品状态更新失败')
   } finally {
     busyId.value = null
+  }
+}
+
+async function handleDelete(foodId: number) {
+  if (!confirm('确定要删除此食品吗？')) return
+  try {
+    await foodApi.delete(foodId)
+    setFeedback('success', '食品已删除')
+    await loadFoods()
+  } catch (e: unknown) {
+    setFeedback('error', e instanceof Error ? e.message : '删除失败')
   }
 }
 

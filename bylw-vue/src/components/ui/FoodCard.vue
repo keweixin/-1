@@ -50,6 +50,19 @@
         >
           {{ tag }}
         </span>
+        <span
+          v-if="matchReason"
+          class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100/50"
+        >
+          {{ matchReason }}
+        </span>
+        <span
+          v-for="mTag in (matchedTags || [])"
+          :key="'m-' + mTag"
+          class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100/50"
+        >
+          #{{ mTag }}
+        </span>
       </div>
 
       <router-link :to="`/food/${id}`" class="block text-base font-black text-gray-900 mb-1.5 hover:text-green-600 transition-colors line-clamp-1">
@@ -101,6 +114,8 @@ const props = defineProps<{
   store: string
   tags: string[]
   matchScore?: number
+  matchReason?: string
+  matchedTags?: string[]
 }>()
 
 const useFallback = ref(false)

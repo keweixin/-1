@@ -137,6 +137,35 @@
           </div>
         </form>
       </div>
+
+      <!-- Password Change -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <h2 class="text-base font-black text-gray-900 mb-4">安全设置</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">原密码</label>
+            <input v-model="pwdForm.oldPassword" type="password" placeholder="请输入原密码"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">新密码</label>
+            <input v-model="pwdForm.newPassword" type="password" placeholder="��少8位，含大小写字母、数字、特殊字符"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">确认新密码</label>
+            <input v-model="pwdForm.confirmPassword" type="password" placeholder="再次输入新密码"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition" />
+          </div>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button @click="handlePasswordChange" :disabled="pwdSaving"
+            class="px-6 py-3 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 disabled:opacity-50 transition-colors">
+            {{ pwdSaving ? '修改中...' : '修改密码' }}
+          </button>
+        </div>
+        <div v-if="pwdError" class="mt-3 text-sm text-red-600 font-medium">{{ pwdError }}</div>
+      </div>
     </template>
   </div>
 </template>
@@ -160,6 +189,9 @@ const form = reactive({
 })
 
 const message = reactive({ type: '', text: '' })
+const pwdForm = reactive({ oldPassword: '', newPassword: '', confirmPassword: '' })
+const pwdSaving = ref(false)
+const pwdError = ref('')
 
 const loadProfile = async () => {
   loading.value = true
@@ -183,8 +215,15 @@ const loadProfile = async () => {
   }
 }
 
-const toggleCourierStatus = () => {
-  courierStatus.value = courierStatus.value === 1 ? 0 : 1
+const toggleCourierStatus = async () => {
+  const newStatus = courierStatus.value === 1 ? 0 : 1
+  try {
+    await courierApi.updateOnlineStatus(newStatus)
+    courierStatus.value = newStatus
+  } catch (e: unknown) {
+    message.text = (e instanceof Error ? e.message : '状态切换失败')
+    message.type = 'error'
+  }
 }
 
 const handleSubmit = async () => {
@@ -205,6 +244,31 @@ const handleSubmit = async () => {
     message.type = 'error'
   } finally {
     saving.value = false
+  }
+}
+
+const handlePasswordChange = async () => {
+  pwdError.value = ''
+  if (!pwdForm.oldPassword || !pwdForm.newPassword || !pwdForm.confirmPassword) {
+    pwdError.value = '请填写所有密码字段'
+    return
+  }
+  if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+    pwdError.value = '两次输入的新密码不一致'
+    return
+  }
+  pwdSaving.value = true
+  try {
+    await authApi.changePassword({ oldPassword: pwdForm.oldPassword, newPassword: pwdForm.newPassword })
+    pwdForm.oldPassword = ''
+    pwdForm.newPassword = ''
+    pwdForm.confirmPassword = ''
+    message.text = '密码修改成功'
+    message.type = 'success'
+  } catch (e: unknown) {
+    pwdError.value = e instanceof Error ? e.message : '密码修改失败'
+  } finally {
+    pwdSaving.value = false
   }
 }
 

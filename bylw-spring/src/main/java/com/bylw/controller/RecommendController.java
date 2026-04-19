@@ -118,4 +118,26 @@ public class RecommendController {
         configHolder.updateConfig(config);
         return Result.success(null);
     }
+
+    @GetMapping("/favorites/admin")
+    public Result<?> listAdminFavorites(HttpServletRequest request,
+                                         @RequestParam(defaultValue = "1") Integer pageNum,
+                                         @RequestParam(defaultValue = "10") Integer pageSize) {
+        authUtil.verifyAdmin(request);
+        return Result.success(recommendService.listAdminFavorites(pageNum, pageSize));
+    }
+
+    @GetMapping("/favorites/my")
+    public Result<?> listMyFavorites(HttpServletRequest request,
+                                      @RequestParam(defaultValue = "1") Integer pageNum,
+                                      @RequestParam(defaultValue = "10") Integer pageSize) {
+        Integer userId = authUtil.getUserId(request);
+        return Result.success(recommendService.listMyFavorites(userId, pageNum, pageSize));
+    }
+
+    @GetMapping("/favorites/stats")
+    public Result<?> getFavoritesStats(HttpServletRequest request) {
+        authUtil.verifyAdmin(request);
+        return Result.success(recommendService.getFavoritesStats());
+    }
 }

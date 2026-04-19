@@ -9,6 +9,7 @@ export interface Post {
   likeCount: number
   commentCount: number
   auditStatus: string
+  recommended?: number
   createTime: string
 }
 
@@ -37,10 +38,14 @@ export const communityApi = {
     api.get<PageResult<Post>>('/community/post/admin/list', params),
   auditPost: (id: number, status: string) =>
     api.put<boolean>(`/community/post/audit/${id}?status=${encodeURIComponent(status)}`),
+  deletePost: (id: number) => api.delete<boolean>(`/community/post/${id}`),
+  toggleRecommend: (id: number) => api.put<boolean>(`/community/post/recommend/${id}`),
   likePost: (id: number) => api.post<boolean>(`/community/post/like/${id}`),
   unlikePost: (id: number) => api.delete<boolean>(`/community/post/like/${id}`),
   comment: (data: Partial<Comment>) => api.post<Comment>('/community/comment', data),
   getComments: (postId: number, params: { pageNum?: number; pageSize?: number }) =>
     api.get<PageResult<Comment>>(`/community/comment/${postId}`, params),
+  adminListComments: (params: { pageNum?: number; pageSize?: number }) =>
+    api.get<PageResult<Comment>>('/community/comment/admin/list', params),
   deleteComment: (id: number) => api.delete<boolean>(`/community/comment/${id}`),
 }

@@ -18,4 +18,7 @@ public interface FoodService {
     boolean updateStatus(Integer foodId, Integer status);
     List<FoodCategory> getCategories();
     List<FoodTag> getTags();
+    FoodCategory saveCategory(FoodCategory category);
+    FoodCategory updateCategory(FoodCategory category);
+    boolean deleteCategory(Integer categoryId);
 }

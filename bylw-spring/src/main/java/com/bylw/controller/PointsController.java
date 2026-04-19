@@ -86,6 +86,15 @@ public class PointsController {
         return Result.success(pointsService.saveGoods(goods));
     }
 
+    @PutMapping("/goods")
+    public Result<?> updateGoods(HttpServletRequest request, @RequestBody PointsGoods goods) {
+        authUtil.verifyAdmin(request);
+        if (goods.getGoodsId() == null) {
+            return Result.error("商品ID不能为空");
+        }
+        return Result.success(pointsService.saveGoods(goods));
+    }
+
     @DeleteMapping("/goods/{id}")
     public Result<?> deleteGoods(HttpServletRequest request, @PathVariable Integer id) {
         authUtil.verifyAdmin(request);

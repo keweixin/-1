@@ -6,6 +6,8 @@
         <p class="mt-2 text-sm text-gray-500">查看订单详情、商品明细与配送信息，追踪整个履约过程。</p>
       </div>
       <div class="flex items-center gap-3">
+        <input v-model.trim="keywordFilter" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-green-500"
+          placeholder="搜索订单号" @keyup.enter="loadOrders" />
         <select v-model="statusFilter" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-600 outline-none focus:border-green-500">
           <option value="">全部状态</option>
           <option value="待支付">待支付</option>
@@ -62,13 +64,16 @@
             </td>
             <td class="px-8 py-6 text-sm text-gray-400">{{ formatDisplayTime(order.createTime) }}</td>
             <td class="px-8 py-6">
-              <button
-                class="text-green-600 hover:underline text-sm font-medium"
-                :disabled="detailLoading && currentOrderId === order.orderId"
-                @click="openDetail(order.orderId)"
-              >
-                {{ detailLoading && currentOrderId === order.orderId ? '加载中...' : '详情' }}
-              </button>
+              <div class="flex items-center gap-3">
+                <button
+                  class="text-green-600 hover:underline text-sm font-medium"
+                  :disabled="detailLoading && currentOrderId === order.orderId"
+                  @click="openDetail(order.orderId)"
+                >
+                  {{ detailLoading && currentOrderId === order.orderId ? '加载中...' : '详情' }}
+                </button>
+                <button class="text-red-600 hover:underline text-sm font-medium" @click="handleDelete(order.orderId)">删除</button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -183,6 +188,7 @@ const detailVisible = ref(false)
 const currentOrder = ref<OrderDTO | null>(null)
 const currentOrderId = ref<number | null>(null)
 const statusFilter = ref('')
+const keywordFilter = ref('')
 const feedback = ref<FeedbackState | null>(null)
 
 function setFeedback(type: FeedbackState['type'], message: string) {
@@ -196,6 +202,7 @@ async function loadOrders() {
       pageNum: 1,
       pageSize: 100,
       status: statusFilter.value || undefined,
+      keyword: keywordFilter.value || undefined,
     })
     orders.value = result.records
   } catch (error) {
@@ -224,6 +231,17 @@ async function openDetail(orderId: number) {
 function formatDisplayTime(value?: string) {
   if (!value) return '-'
   return value.replace('T', ' ').slice(0, 19)
+}
+
+async function handleDelete(orderId: number) {
+  if (!confirm('确定要删除此订单吗？')) return
+  try {
+    await orderApi.delete(orderId)
+    setFeedback('success', '订单已删除')
+    await loadOrders()
+  } catch (e: unknown) {
+    setFeedback('error', e instanceof Error ? e.message : '删除失败')
+  }
 }
 
 watch(statusFilter, () => { loadOrders() })

@@ -49,4 +49,16 @@ export const recommendApi = {
     api.get<boolean>('/recommend/favorite/check', { targetType, targetId }),
   toggleFavorite: (targetType: string, targetId: number) =>
     api.post<boolean>('/recommend/favorite/toggle', { targetType, targetId }),
+  listAdminFavorites: (params: { pageNum?: number; pageSize?: number }) =>
+    api.get<PageResult<unknown>>('/recommend/favorites/admin', params),
+  listMyFavorites: (params: { pageNum?: number; pageSize?: number }) =>
+    api.get<PageResult<unknown>>('/recommend/favorites/my', params),
+  getFavoritesStats: () => api.get<{ totalFavorites: number; todayFavorites: number }>('/recommend/favorites/stats'),
+}
+
+interface PageResult<T> {
+  records: T[]
+  total: number
+  size: number
+  current: number
 }

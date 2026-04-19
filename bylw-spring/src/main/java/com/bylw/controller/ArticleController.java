@@ -61,8 +61,9 @@ public class ArticleController {
     public Result<?> listRecipes(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false) String keyword) {
-        return Result.success(articleService.listRecipes(pageNum, pageSize, keyword));
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String suitablePeople) {
+        return Result.success(articleService.listRecipes(pageNum, pageSize, keyword, suitablePeople));
     }
 
     @GetMapping("/recipe/{id}")

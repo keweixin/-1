@@ -77,10 +77,11 @@ export const orderApi = {
   getById: (id: number) => api.get<OrderDTO>(`/order/${id}`),
   listMy: (params: { pageNum?: number; pageSize?: number }) =>
     api.get<PageResult<OrderDTO>>('/order/my', params),
-  listAll: (params: { pageNum?: number; pageSize?: number; status?: string }) =>
+  listAll: (params: { pageNum?: number; pageSize?: number; status?: string; keyword?: string }) =>
     api.get<PageResult<OrderDTO>>('/order/list', params),
   updateStatus: (id: number, status: string) =>
     api.put<boolean>(`/order/status/${id}?status=${status}`),
+  delete: (id: number) => api.delete<boolean>(`/order/${id}`),
   pay: (id: number) => api.put<boolean>(`/order/pay/${id}`),
   mockPay: async (id: number) => {
     try {

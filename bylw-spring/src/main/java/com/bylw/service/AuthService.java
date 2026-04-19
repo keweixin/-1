@@ -11,4 +11,6 @@ public interface AuthService {
     User getUserInfo(Integer userId);
     User updateUserInfo(Integer userId, UpdateUserInfoDTO dto);
     boolean resetPassword(String username, String phone, String newPassword);
+
+    boolean changePassword(Integer userId, String oldPassword, String newPassword);
 }

@@ -3,6 +3,14 @@
     <div class="text-center mb-16">
       <h1 class="text-4xl font-black text-gray-900 mb-4">膳食百科</h1>
       <p class="text-gray-500">了解临期食品知识，科学健康饮食</p>
+      <div class="mt-6 max-w-md mx-auto">
+        <input
+          v-model.trim="searchKeyword"
+          class="w-full rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm outline-none focus:border-green-500 shadow-sm transition"
+          placeholder="搜索文章标题..."
+          @keyup.enter="loadArticles"
+        />
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -44,6 +52,7 @@ import { getArticleImage as getArticleCover } from '@/utils/images'
 
 const articles = ref<Article[]>([])
 const loading = ref(true)
+const searchKeyword = ref('')
 const articleImgErrorFlags = ref<Record<number, boolean>>({})
 
 function handleArticleImgError(idx: number) {
@@ -60,7 +69,7 @@ function getArticleImage(item: Article, idx: number): string {
 async function loadArticles() {
   loading.value = true
   try {
-    const result = await articleApi.listArticles({ pageNum: 1, pageSize: 20 })
+    const result = await articleApi.listArticles({ pageNum: 1, pageSize: 20, keyword: searchKeyword.value || undefined })
     articles.value = result.records
   } catch {
     articles.value = []

@@ -99,6 +99,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/user/Profile.vue'),
       },
       {
+        path: 'favorites',
+        name: 'Favorites',
+        component: () => import('@/views/user/Favorites.vue'),
+      },
+      {
         path: 'recommendations',
         name: 'Recommendations',
         component: () => import('@/views/user/Recommendations.vue'),
@@ -192,6 +197,26 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminDispatchMgmt',
         component: () => import('@/views/admin/DispatchMgmt.vue'),
       },
+      {
+        path: 'profile',
+        name: 'AdminProfile',
+        component: () => import('@/views/admin/AdminProfile.vue'),
+      },
+      {
+        path: 'categories',
+        name: 'AdminCategoryMgmt',
+        component: () => import('@/views/admin/CategoryMgmt.vue'),
+      },
+      {
+        path: 'favorites',
+        name: 'AdminFavoritesMgmt',
+        component: () => import('@/views/admin/FavoritesMgmt.vue'),
+      },
+      {
+        path: 'reviews',
+        name: 'AdminReviewMgmt',
+        component: () => import('@/views/admin/ReviewMgmt.vue'),
+      },
     ],
   },
   {
@@ -213,6 +238,11 @@ const routes: RouteRecordRaw[] = [
         path: 'orders',
         name: 'MerchantOrderMgmt',
         component: () => import('@/views/merchant/OrderMgmt.vue'),
+      },
+      {
+        path: 'profile',
+        name: 'MerchantProfile',
+        component: () => import('@/views/merchant/Profile.vue'),
       },
     ],
   },
@@ -249,7 +279,7 @@ router.beforeEach((to, _from, next) => {
   }
 
   // Require auth for user pages that need login
-  const authRequiredUserRoutes = ['/orders', '/appeals', '/points', '/recommendations', '/profile']
+  const authRequiredUserRoutes = ['/orders', '/appeals', '/points', '/recommendations', '/profile', '/favorites']
   if (authRequiredUserRoutes.some(p => to.path === p || to.path.startsWith(p + '/')) && !authStore.isAuthenticated()) {
     next({ path: '/login', query: { redirect: to.fullPath } })
     return

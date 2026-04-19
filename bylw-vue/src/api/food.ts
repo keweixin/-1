@@ -69,4 +69,7 @@ export const foodApi = {
   update: (data: Partial<FoodDTO>) => api.put<FoodDTO>('/food', data),
   delete: (id: number) => api.delete<boolean>(`/food/${id}`),
   updateStatus: (id: number, status: number) => api.put<boolean>(`/food/status/${id}?status=${status}`),
+  saveCategory: (data: Partial<FoodCategory>) => api.post<FoodCategory>('/food/categories', data),
+  updateCategory: (data: Partial<FoodCategory>) => api.put<FoodCategory>('/food/categories', data),
+  deleteCategory: (id: number) => api.delete<boolean>(`/food/categories/${id}`),
 }

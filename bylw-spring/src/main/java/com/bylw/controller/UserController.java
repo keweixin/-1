@@ -77,6 +77,19 @@ public class UserController {
         return Result.success(true);
     }
 
+    @DeleteMapping("/{id}")
+    public Result<?> deleteUser(HttpServletRequest request, @PathVariable Integer id) {
+        authUtil.verifyAdmin(request);
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        user.setDeleted(1);
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.updateById(user);
+        return Result.success(true);
+    }
+
     @PutMapping("/role-type/{id}")
     public Result<?> updateRoleType(HttpServletRequest request, @PathVariable Integer id, @RequestParam Integer roleType) {
         authUtil.verifyAdmin(request);

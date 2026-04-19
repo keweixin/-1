@@ -84,7 +84,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Page<Recipe> listRecipes(Integer pageNum, Integer pageSize, String keyword) {
+    public Page<Recipe> listRecipes(Integer pageNum, Integer pageSize, String keyword, String suitablePeople) {
         Page<Recipe> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Recipe> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Recipe::getStatus, 1)
@@ -92,6 +92,9 @@ public class ArticleServiceImpl implements ArticleService {
                .orderByDesc(Recipe::getPublishTime);
         if (StringUtils.hasText(keyword)) {
             wrapper.like(Recipe::getTitle, keyword);
+        }
+        if (StringUtils.hasText(suitablePeople)) {
+            wrapper.like(Recipe::getSuitablePeople, suitablePeople);
         }
         return recipeMapper.selectPage(page, wrapper);
     }

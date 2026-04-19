@@ -42,6 +42,8 @@ export const pointsApi = {
     api.get<PageResult<PointsRecord>>('/points/history/all', params),
   listGoods: (params: { pageNum?: number; pageSize?: number }) =>
     api.get<PageResult<PointsGoods>>('/points/goods', params),
+  saveGoods: (data: Partial<PointsGoods>) => api.post<PointsGoods>('/points/goods', data),
+  updateGoods: (data: Partial<PointsGoods>) => api.put<PointsGoods>('/points/goods', data),
   deleteGoods: (id: number) => api.delete<boolean>(`/points/goods/${id}`),
   exchange: (goodsId: number) => api.post<PointsExchange>('/points/exchange', { goodsId }),
   signIn: () => api.post<{ success: boolean; points: number }>('/points/sign-in', {}),

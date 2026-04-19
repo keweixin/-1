@@ -66,6 +66,14 @@ public class AuthController {
         return Result.success(authService.resetPassword(username, phone, newPassword));
     }
 
+    @PutMapping("/change-password")
+    public Result<?> changePassword(HttpServletRequest request, @RequestBody Map<String, String> body) {
+        Integer userId = getUserIdFromToken(request);
+        String oldPassword = body.get("oldPassword");
+        String newPassword = body.get("newPassword");
+        return Result.success(authService.changePassword(userId, oldPassword, newPassword));
+    }
+
     @PostMapping("/logout")
     public Result<?> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");

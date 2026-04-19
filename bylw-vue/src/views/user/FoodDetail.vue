@@ -191,6 +191,46 @@
               </h3>
               <p class="text-sm text-gray-600">{{ food.suitable }}</p>
             </section>
+            <section v-else-if="activeTab === 3">
+              <h3 class="text-lg font-bold text-gray-900 mb-4">用户评价</h3>
+
+              <div v-if="reviews.length === 0" class="text-center py-12 text-gray-400">
+                <p>暂无评价，快来发表第一条评论吧</p>
+              </div>
+              <div v-else class="space-y-4 mb-6">
+                <div v-for="review in reviews" :key="review.reviewId" class="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-bold text-gray-900">用户{{ review.userId }}</span>
+                      <div class="flex items-center gap-0.5">
+                        <span v-for="s in 5" :key="s" class="text-xs" :class="s <= review.rating ? 'text-yellow-400' : 'text-gray-300'">&#9733;</span>
+                      </div>
+                    </div>
+                    <span class="text-xs text-gray-400">{{ review.createTime?.replace('T', ' ').slice(0, 16) }}</span>
+                  </div>
+                  <p class="text-sm text-gray-600">{{ review.content }}</p>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-2xl border border-gray-100 p-5">
+                <h4 class="text-sm font-bold text-gray-900 mb-3">发表评论</h4>
+                <textarea v-model="reviewForm.content" rows="3" placeholder="分享您对这款食品的评价..."
+                  class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-500 resize-none mb-3" />
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600">评分：</span>
+                    <div class="flex gap-1">
+                      <button v-for="s in 5" :key="s" @click="reviewForm.rating = s" class="text-lg"
+                        :class="s <= reviewForm.rating ? 'text-yellow-400' : 'text-gray-300'">&#9733;</button>
+                    </div>
+                  </div>
+                  <button class="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition-all disabled:bg-green-300"
+                    :disabled="reviewSubmitting" @click="submitReview">
+                    {{ reviewSubmitting ? '提交中...' : '提交评论' }}
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
 
           <!-- Related Recommendations -->
@@ -328,6 +368,7 @@ import { foodApi } from '@/api/food'
 import { orderApi, type OrderCreateDTO } from '@/api/order'
 import { recommendApi } from '@/api/recommend'
 import { authApi } from '@/api/auth'
+import { reviewApi, type FoodReview } from '@/api/review'
 import type { FoodDTO } from '@/api/food'
 import { mapFoodToCard, type FoodCardItem, getCategoryImage } from '@/utils/mapping'
 import { getFoodImage } from '@/utils/images'
@@ -356,10 +397,13 @@ const route = useRoute()
 const router = useRouter()
 const quantity = ref(1)
 const activeTab = ref(0)
-const tabs = ['商品详情', '营养说明', '适合人群']
+const tabs = ['商品详情', '营养说明', '适合人群', '用户评价']
 const relatedFoods = ref<FoodCardItem[]>([])
 const relatedLoading = ref(false)
 const orderLoading = ref(false)
+const reviews = ref<FoodReview[]>([])
+const reviewSubmitting = ref(false)
+const reviewForm = ref({ content: '', rating: 5 })
 const showOrderConfirm = ref(false)
 const pointsBalance = ref(0)
 const pointsToUse = ref(0)
@@ -519,9 +563,38 @@ async function handleFavorite() {
   }
 }
 
+async function loadReviews() {
+  try {
+    const id = Number(route.params.id)
+    const result = await reviewApi.getReviewsByFoodId(id, { pageNum: 1, pageSize: 50 })
+    reviews.value = result.records
+  } catch {
+    reviews.value = []
+  }
+}
 
-onMounted(() => { loadFood(); loadRelatedFoods(); loadFavoriteStatus() })
-watch(() => route.params.id, () => { loadFood(); loadRelatedFoods(); loadFavoriteStatus() })
+async function submitReview() {
+  if (!reviewForm.value.content.trim()) {
+    toast.show('请输入评论内容', 'error')
+    return
+  }
+  reviewSubmitting.value = true
+  try {
+    const id = Number(route.params.id)
+    await reviewApi.addReview({ foodId: id, content: reviewForm.value.content.trim(), rating: reviewForm.value.rating })
+    reviewForm.value = { content: '', rating: 5 }
+    toast.show('评论发表成功', 'success')
+    await loadReviews()
+  } catch (e: unknown) {
+    toast.show(e instanceof Error ? e.message : '评论失败', 'error')
+  } finally {
+    reviewSubmitting.value = false
+  }
+}
+
+
+onMounted(() => { loadFood(); loadRelatedFoods(); loadFavoriteStatus(); loadReviews() })
+watch(() => route.params.id, () => { loadFood(); loadRelatedFoods(); loadFavoriteStatus(); loadReviews() })
 
 function calcExpiryDays(expireDate: string): number {
   if (!expireDate) return 0

@@ -230,16 +230,21 @@ async function submitContent() {
   submitting.value = true
   try {
     if (activeTab.value === 'article') {
-      await articleApi.saveArticle({
+      const articleData = {
         articleId: form.id ?? undefined,
         title: form.title.trim(),
         summary: form.summary.trim(),
         content: form.content.trim(),
         coverImg: form.coverImg.trim(),
         status: 1,
-      })
+      }
+      if (form.id) {
+        await articleApi.updateArticle(articleData)
+      } else {
+        await articleApi.saveArticle(articleData)
+      }
     } else {
-      await articleApi.saveRecipe({
+      const recipeData = {
         recipeId: form.id ?? undefined,
         title: form.title.trim(),
         summary: form.summary.trim(),
@@ -247,7 +252,12 @@ async function submitContent() {
         coverImg: form.coverImg.trim(),
         suitablePeople: form.suitablePeople.trim(),
         status: 1,
-      })
+      }
+      if (form.id) {
+        await articleApi.updateRecipe(recipeData)
+      } else {
+        await articleApi.saveRecipe(recipeData)
+      }
     }
 
     setFeedback('success', `${currentLabel.value}已成功保存。`)
