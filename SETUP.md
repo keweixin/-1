@@ -2,203 +2,208 @@
 
 ## 一、环境准备
 
-新电脑需要安装以下软件，版本必须一致：
+新电脑只需要安装一个软件：
 
-| 软件 | 版本要求 | 下载地址 | 验证命令 |
-|------|---------|---------|---------|
-| JDK | 17 或以上 | https://adoptium.net/ | `java -version` |
-| Node.js | 18 或以上 | https://nodejs.org/ (选 LTS) | `node -v` |
-| MySQL | 8.0 | https://dev.mysql.com/downloads/ | `mysql --version` |
-| Maven | 3.8+ | https://maven.apache.org/ | `mvn -v` |
+| 软件 | 下��地址 | 验证命令 |
+|------|---------|---------|
+| Docker Desktop | https://www.docker.com/products/docker-desktop/ | `docker -v` |
 
-> 如果你用 IntelliJ IDEA，Maven 可以用 IDEA 内置的，不需要单独装。
+> 安装 Docker Desktop 后，`docker compose` 命令会自动包含在内，无需额外安装 JDK、Node.js、MySQL、Maven。
 
 ---
 
 ## 二、拉取项目
 
 ```bash
-git clone https://github.com/keweixin/bylw.git
-cd bylw
+git clone https://github.com/keweixin/-1.git
+cd -1
 ```
 
 ---
 
-## 三、初始化���据库（最重要的一步）
+## 三、一键启动（Docker Compose）
 
-### 方式 A：一键脚本（推荐）
-
-Windows 双击 `setup-db.bat`，或在项目根目录执行：
+### 1. 进入部署目录
 
 ```bash
-setup-db.bat
+cd docker
 ```
 
-按提示输入 MySQL 用户名和密码（默认 root/root），脚本会自动完成所有初始化。
+### 2. 检查环境变量（可选）
 
-### 方式 B：手动执行
+`docker/.env` 文件内容：
 
-如果一键脚本执行失败，按以下顺序逐个执行 SQL 文件：
+```env
+DB_PASSWORD=bylw2026secure      # MySQL 密码
+DB_PORT=3306                    # MySQL 端口
+BACKEND_PORT=8080               # 后端 API 端口
+JWT_SECRET=bylw-production-change-this-to-a-secure-random-string-32chars
+JWT_EXPIRATION=86400000         # Token 过期时间(毫秒)
+FRONTEND_PORT=80                # 前端端口
+```
+
+一般不需要修改。如果本机 80/8080/3306 端口被占用，改对应的值即可。
+
+### 3. 构建并启动所有服务
 
 ```bash
-# 打开 MySQL 命令行
-mysql -u root -p
-
-# 第 1 步：建库 + 建表（必须第一个执行）
-source bylw-spring/sql/schema.sql;
-
-# 第 2 步：导入标签、食品、用户行为数据
-source bylw-spring/sql/seed_data.sql;
-
-# 第 3 步：导入用户、文章、食谱、社区帖子
-source bylw-spring/sql/seed_data_v2.sql;
-
-# 第 4 步：导入扩充食品数据
-source bylw-spring/sql/seed_data_v2_extra.sql;
-
-# 第 5 步：导入 200 条食品 + 百科 + 食谱
-source bylw-spring/sql/init_data_v2.sql;
-
-# 第 6 步：数据库结构迁移（加列、索引、触发器）
-source bylw-spring/sql/migration_comprehensive_v2.sql;
-
-# 第 7 步：增量迁移
-source bylw-spring/sql/migration_business_optimize.sql;
-source bylw-spring/sql/migration_add_version.sql;
-source bylw-spring/sql/migration_food_review.sql;
-source bylw-spring/sql/migration_remaining.sql;
+docker compose up -d --build
 ```
 
-### 验证数据库是否初始化成功
+这一条命令会自动完成：
+- 拉取 MySQL 8.0 镜像，创建数据库并自动导入 `init.sql`（包含所有建表语句、种子数据、触发器）
+- 编译 Spring Boot 后端项目，打包并运行
+- 编译 Vue 前端项目，用 Nginx 托管并提供 API 反向代理
 
-```sql
-USE bylw;
-SHOW TABLES;          -- 应该有 25 张表左右
-SELECT COUNT(*) FROM food;                -- 应该有 200+ 条食品
-SELECT COUNT(*) FROM sys_user;            -- 应该有 15+ 个用户
-SELECT COUNT(*) FROM food_article;        -- 应该有文章数据
-SELECT COUNT(*) FROM food_recipe;         -- 应该有食谱数据
-SELECT COUNT(*) FROM community_post;      -- 应该有社区帖子
+> 首次构建需要下载依赖和镜像，大约 5-10 分钟。
+
+### 4. 确认服务启动
+
+```bash
+# 查看三个容器的状态（应该都是 running / healthy）
+docker compose ps
+
+# 查看日志（确认没有报错）
+docker compose logs -f
+```
+
+正确启动后输出类似：
+
+```
+NAME              STATUS
+bylw-mysql        running (healthy)
+bylw-backend      running
+bylw-frontend     running
 ```
 
 ---
 
-## 四、启动后端（Spring Boot）
+## 四、访问系统
 
-### 方式 A：IntelliJ IDEA（推荐）
-
-1. 打开 IDEA → File → Open → 选择 `bylw-spring` 目录
-2. 等待 Maven 自动下载依赖（首次可能需要几分钟）
-3. 找到主启动类（一般在 `com.bylw` 包下，带 `@SpringBootApplication` 注解）
-4. 右键 → Run
-
-### 方式 B：命令行
-
-```bash
-cd bylw-spring
-mvn spring-boot:run
-```
-
-### 验证后端是否启动成功
-
-浏览器访问 http://localhost:8080/api/food/list ，如果返回 JSON 数据就说明成功了。
-
-> 后端默认运行在 **8080** 端口。
+| 端 | 地址 |
+|----|------|
+| 前端首页 | http://localhost |
+| 后端 API | http://localhost:8080/api |
+| MySQL | localhost:3306 |
 
 ---
 
-## 五、启动前端（Vue）
-
-```bash
-cd bylw-vue
-npm install
-npm run dev
-```
-
-- `npm install` 会自动下载所有前端依赖，首次可能需要几分钟
-- `npm run dev` 启动开发服务器
-
-### 验证前端是否启动成功
-
-终端会显示类似：
-
-```
-Local: http://localhost:3000/
-```
-
-浏览器打开 http://localhost:3000 即可看到系统首页。
-
----
-
-## 六、测试账号
+## 五、测试账号
 
 | 角色 | 用户名 | 密码 | 用途 |
 |------|--------|------|------|
-| 管理员 | admin | 123456 | 后台管理：用户管理、食品管理、订单管理、内容审核等 |
-| 普通用户 | health_wang | 123456 | 用户端：浏览食品、下单、社区、收藏等 |
+| 管理员 | admin | 123456 | 后台管理：用户管理、食品管理、订单管理、内容审核 |
+| 普通用户 | health_wang | 123456 | 用户端：浏览食品、下单、社区、收藏 |
 | 普通用户 | office_li | 123456 | 用户端 |
-| 更多用户 | 见 seed_data_v2.sql | 123456 | 共 10+ 个测试用户 |
-
-> 所有 seed_data 中的测试用户密码均为 123456。
+| 更多用户 | 见数据库 | 123456 | 共 10+ 个测试用户 |
 
 ---
 
-## 七、登录入口
+## 六、登录入口
 
-| 端 | 地址 | 说明 |
-|----|------|------|
-| 用户端 | http://localhost:3000 | 首页，普通用户登录后进入 |
-| 管理后台 | http://localhost:3000/admin | 管理员登录后进入 |
-| 商家后台 | http://localhost:3000/merchant | 商家登录后进入 |
-| 骑手端 | http://localhost:3000/rider | 骑手登录后进入 |
+| 端 | 地址 |
+|----|------|
+| 用户端 | http://localhost |
+| 管理后台 | http://localhost/admin |
+| 商家后台 | http://localhost/merchant |
+| 骑手端 | http://localhost/rider |
+
+---
+
+## 七、常用 Docker 命令
+
+```bash
+# 查看服务状态
+docker compose ps
+
+# 查看实时日志
+docker compose logs -f
+
+# 只看后端日志
+docker compose logs -f backend
+
+# 进入 MySQL 容器
+docker compose exec mysql mysql -uroot -pbylw2026secure bylw
+
+# 重启单个服务
+docker compose restart backend
+
+# 停止所有服务
+docker compose down
+
+# 停止并清除数据库数据（重置所有数据）
+docker compose down -v
+
+# 重新构建并启动（代码有修改时）
+docker compose up -d --build
+```
 
 ---
 
 ## 八、常见问题
 
-### Q1: 后端启动报错 "Communications link failure"
+### Q1: 端口被占用
 
-MySQL 没启动，或者密码不对。检查：
-1. MySQL 服务是否已启动
-2. `bylw-spring/src/main/resources/application.yml` 中的数据库密码是否和你本机一致（默认 root/root）
+修改 `docker/.env` 中的端口：
 
-如果密码不是 root，修改 `application.yml` 中这两行：
-```yaml
-url: jdbc:mysql://localhost:3306/bylw?...
-username: root          # 改成你的 MySQL 用户名
-password: root          # 改成你的 MySQL 密码
+```env
+FRONTEND_PORT=8081    # 前端改到 8081
+BACKEND_PORT=8082     # 后端改到 8082
+DB_PORT=3307          # MySQL 改到 3307
 ```
 
-### Q2: 前端页面空白 / 接口报 404
+然后重新 `docker compose up -d`。
 
-前后端没连上。检查：
-1. 后端是否已启动（http://localhost:8080 能否访问）
-2. `bylw-vue/.env` 文件内容是否为 `VITE_API_BASE_URL=http://localhost:8080`
-3. 前端运行在 3000 端口，后端运行在 8080 端口，Vite 会自动代理 `/api` 请求到后端
+### Q2: 前端页面空白 / 接口报错
 
-### Q3: npm install 很慢或报错
-
-切换到国内镜像：
 ```bash
-npm config set registry https://registry.npmmirror.com
-npm install
+# 检查三个容器是否都在运行
+docker compose ps
+
+# 查看后端日志排查原因
+docker compose logs backend
 ```
 
-### Q4: 页面有数据但图片不显示
+### Q3: 数据库连接失败
 
-图片文件在 `bylw-vue/public/images/` 目录下，这些已经包含在 Git 仓库中。如果图片缺失：
-1. 确认 `git clone` 时网络稳定，没有文件丢失
-2. 检查 `bylw-vue/public/images/foods/` 目录下是否有图片文件
+```bash
+# 检查 MySQL 是否就绪
+docker compose exec mysql mysqladmin ping -h localhost -uroot -pbylw2026secure
 
-### Q5: Maven 下载依赖很慢
+# 如果刚启动，等 MySQL 健康检查通过后再看
+docker compose ps
+```
 
-在 `bylw-spring/pom.xml` 中确认已配置国内镜像，或修改 Maven 的 `settings.xml`：
-```xml
-<mirror>
-    <id>aliyun</id>
-    <url>https://maven.aliyun.com/repository/public</url>
-    <mirrorOf>central</mirrorOf>
-</mirror>
+### Q4: 想重置所有数据
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+`-v` 会删除 MySQL 数据卷，下次启动时会重新执行 `init.sql` 初始化。
+
+### Q5: 构建很慢（国内网络）
+
+Docker 拉取镜像慢可以配置镜像加速器，在 Docker Desktop → Settings → Docker Engine 中添加：
+
+```json
+{
+  "registry-mirrors": ["https://docker.1ms.run"]
+}
+```
+
+Maven 下载依赖慢，后端 Dockerfile 已配置阿里云镜像源，一般不需要额外处理。
+
+### Q6: 代码修改后如何更新
+
+```bash
+# 重新拉取最新代码
+git pull
+
+# 重新构建并启动
+cd docker
+docker compose up -d --build
 ```
 
 ---
@@ -206,9 +211,9 @@ npm install
 ## 九、项目目录结构
 
 ```
-bylw/
+-1/
 ├── bylw-spring/              # 后端 (Spring Boot 3.2 + Java 17)
-│   ├── src/main/java/        # Java 源码
+│   ├── src/main/java/
 │   │   └── com/bylw/
 │   │       ├── controller/   # 接口控制器
 │   │       ├── service/      # 业务逻辑层
@@ -216,7 +221,6 @@ bylw/
 │   │       └── entity/       # 实体类
 │   ├── src/main/resources/
 │   │   └── application.yml   # 后端配置文件
-│   ├── sql/                  # 数据库脚本（建表 + 种子数据 + 迁移）
 │   └── pom.xml               # Maven 依赖配置
 │
 ├── bylw-vue/                 # 前端 (Vue 3 + TypeScript + Tailwind CSS)
@@ -226,10 +230,50 @@ bylw/
 │   │   ├── components/       # 公共组件
 │   │   └── router/           # 路由配置
 │   ├── public/images/        # 图片资源（食品、文章、社区等）
-│   ├── .env                  # 前端环境变量（API 地址）
+│   ├── Dockerfile            # 前端容器构建文件
+│   ├── nginx.conf            # Nginx 配置（API 反向代理）
 │   └── package.json          # Node.js 依赖配置
 │
-├── setup-db.bat              # Windows 一键数据库初始化脚本
-├── setup-db.sh               # Linux/macOS 一键数据库初始化脚本
+├── docker/                   # Docker 部署配置
+│   ├── docker-compose.yml    # 编排文件（MySQL + 后端 + 前端）
+│   ├── Dockerfile            # 后端容器构建文件
+│   ├── .env                  # 环境变量配置
+│   ├── init.sql              # 数据库完整初始化脚本（含数据）
+│   └── README.md             # Docker 部署说明
+│
+├── setup-db.bat              # Windows 本地开发数据库初始化脚本
+├── setup-db.sh               # Linux/macOS 本地开发数据库初始化脚本
 └── SETUP.md                  # 本文档
+```
+
+---
+
+## 十、本地开发（不使用 Docker）
+
+如果你想在本地用 IDEA 开发而不是 Docker 部署，参考以下步骤：
+
+### 环境要求
+
+| 软件 | 版本 |
+|------|------|
+| JDK | 17+ |
+| Node.js | 18+ |
+| MySQL | 8.0 |
+| Maven | 3.8+（或 IDEA 内置） |
+
+### 步骤
+
+```bash
+# 1. 初始化数据库（双击 setup-db.bat 或手动执行）
+setup-db.bat
+
+# 2. 启动后端（IDEA 打开 bylw-spring 目录，运行主启动类）
+#    或命令行: cd bylw-spring && mvn spring-boot:run
+
+# 3. 启动前端
+cd bylw-vue
+npm install
+npm run dev
+
+# 4. 访问 http://localhost:3000
 ```
